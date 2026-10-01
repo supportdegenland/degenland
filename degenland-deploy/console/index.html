@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DegenLand · Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Chakra+Petch:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0E0A26;--bg1:#1B1440;--bg2:#2B2070;--panel:#2A2066;--panel2:#352A7E;--text:#F4F1FF;--muted:#B9B0E6;--line:rgba(185,176,230,.22);
+--mint:#5CF2A6;--cyan:#3FE0FF;--sun:#FFD23F;--pink:#FF4FB3;--orange:#FF8A3D;--red:#FF5A5F}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){--bg1:#DCE8FF;--bg2:#EDE6FF;--panel:#FFFFFF;--panel2:#F1ECFF;--text:#1B1440;--muted:#5B528A;--line:rgba(91,82,138,.2)}}
+:root[data-theme="light"]{--bg1:#DCE8FF;--bg2:#EDE6FF;--panel:#FFFFFF;--panel2:#F1ECFF;--text:#1B1440;--muted:#5B528A;--line:rgba(91,82,138,.2)}
+:root[data-theme="dark"]{--bg1:#1B1440;--bg2:#2B2070;--panel:#2A2066;--panel2:#352A7E;--text:#F4F1FF;--muted:#B9B0E6;--line:rgba(185,176,230,.22)}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;font-family:"Chakra Petch",system-ui,-apple-system,"Segoe UI",sans-serif,-apple-system,"Segoe UI",sans-serif;color:var(--text);background:linear-gradient(180deg,var(--bg1),var(--bg2)) fixed;background-color:var(--bg1)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto;padding:12px 14px 40px}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;align-items:center;gap:10px;padding:8px 0;background:linear-gradient(180deg,var(--bg1) 75%,transparent)}
+.logo{font-family:"Press Start 2P",system-ui,sans-serif;font-size:18px;color:var(--sun);text-shadow:2px 2px 0 var(--ink);margin-right:auto;line-height:1}
+.logo small{font-family:"Chakra Petch",system-ui,-apple-system,"Segoe UI",sans-serif,sans-serif;font-size:13px;color:var(--muted);text-shadow:none;margin-left:6px;font-weight:700}
+nav.tabs{display:flex;gap:6px;overflow-x:auto;padding:4px 0 10px;scrollbar-width:none}
+nav.tabs button{flex:none;border:3px solid var(--ink);border-radius:12px;background:var(--panel);padding:6px 12px;font-weight:800;box-shadow:0 3px 0 var(--ink);white-space:nowrap}
+nav.tabs button[aria-current="page"]{background:var(--sun);color:var(--ink)}
+nav.tabs .n{display:inline-block;min-width:20px;padding:0 6px;margin-left:6px;border-radius:10px;background:var(--pink);color:#fff;border:2px solid var(--ink);font-size:12px;line-height:16px}
+.card{background:var(--panel);border:3px solid var(--ink);border-radius:18px;box-shadow:0 4px 0 var(--ink);padding:14px;margin:12px 0}
+h2{font-family:"Press Start 2P",system-ui,sans-serif;font-weight:400;font-size:18px;margin:4px 0 8px;text-shadow:2px 2px 0 var(--ink)}
+h3{margin:0 0 6px;font-size:17px;font-weight:800}
+p{margin:4px 0;line-height:1.45}.muted{color:var(--muted)}.small{font-size:13px}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.grid2{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.kpi{background:var(--panel2);border:3px solid var(--ink);border-radius:14px;padding:10px 12px}
+.kpi b{display:block;font-family:"Press Start 2P",system-ui,sans-serif;font-weight:400;font-size:20px;line-height:1.2}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:2px dashed var(--line)}
+.kv:last-child{border-bottom:0}
+.btn{border:3px solid var(--ink);border-radius:12px;padding:7px 12px;font-weight:800;background:var(--sun);color:var(--ink);box-shadow:0 3px 0 var(--ink)}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.btn.mint{background:var(--mint)}.btn.red{background:var(--red);color:#fff}.btn.ghost{background:var(--panel2);color:var(--text)}.btn.cyan{background:var(--cyan)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.sm{padding:3px 9px;font-size:13px;border-width:2px;box-shadow:0 2px 0 var(--ink)}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.grow{flex:1}
+input.f,select.f,textarea.f{padding:7px 10px;border:3px solid var(--ink);border-radius:10px;background:var(--panel2);font-weight:700;min-width:0}
+.tbl{overflow-x:auto;margin:0 -4px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:8px 8px;text-align:left;border-bottom:2px dashed var(--line);vertical-align:top;white-space:nowrap}
+th{color:var(--muted);font-weight:700;font-size:13px}
+td.num,th.num{text-align:right}
+tr.sel td{background:rgba(63,224,255,.08)}
+.tag{display:inline-block;padding:0 8px;border-radius:10px;border:2px solid var(--ink);font-size:12px;font-weight:800;margin:1px 2px 1px 0;color:var(--ink);white-space:nowrap}
+.t-red{background:var(--red);color:#fff}.t-sun{background:var(--sun)}.t-mint{background:var(--mint)}.t-cyan{background:var(--cyan)}.t-pink{background:var(--pink);color:#fff}.t-grey{background:var(--panel2);color:var(--text)}
+.dot{display:inline-block;width:14px;height:14px;border-radius:50%;border:2px solid var(--ink);vertical-align:middle;margin-right:6px}
+.bar{height:14px;border:3px solid var(--ink);border-radius:999px;background:var(--panel2);overflow:hidden;margin:6px 0}
+.bar i{display:block;height:100%}
+.src{display:grid;grid-template-columns:110px 1fr 80px;gap:8px;align-items:center;margin:6px 0;font-size:14px}
+.src .bar{margin:0}
+.overlay{position:fixed;inset:0;z-index:20;background:rgba(14,10,38,.7);display:none;align-items:flex-end;justify-content:center;padding:16px}
+.overlay.show{display:flex}
+@media (min-width:760px){.overlay{align-items:center}}
+.sheet{width:100%;max-width:620px;max-height:85%;overflow:auto;background:var(--panel);border:3px solid var(--ink);border-radius:20px;box-shadow:0 6px 0 var(--ink);padding:16px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px);opacity:0;z-index:30;background:var(--sun);color:var(--ink);border:3px solid var(--ink);border-radius:12px;box-shadow:0 4px 0 var(--ink);padding:8px 14px;font-weight:800;transition:.2s;max-width:90%;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.log{font-size:13px}
+.log div{padding:6px 0;border-bottom:2px dashed var(--line)}
+[hidden]{display:none!important}
+label.l{display:block;font-weight:700;font-size:13px;margin-bottom:3px}
+.set{display:grid;gap:10px 14px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+.set input.f{width:100%}
+
+/* ===== DegenLand: console cyberpunk pixel ===== */
+:root{--ink:#05030F;--bg1:#0B0620;--bg2:#1E0B3A;--panel:#140C2E;--panel2:#1F1445;--text:#E9F7FF;--muted:#9C8FD0;--line:rgba(0,240,255,.18);
+  --mint:#39FF88;--cyan:#00F0FF;--sun:#F9F002;--pink:#FF2E88;--orange:#FF8A00;--red:#FF3B3B}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){--bg1:#D9E4FF;--bg2:#F1DDF5;--panel:#FFFFFF;--panel2:#EDE7FF;--text:#150A33;--muted:#5A4C8C;--line:rgba(90,76,140,.22)}}
+:root[data-theme="light"]{--bg1:#D9E4FF;--bg2:#F1DDF5;--panel:#FFFFFF;--panel2:#EDE7FF;--text:#150A33;--muted:#5A4C8C;--line:rgba(90,76,140,.22)}
+:root[data-theme="dark"]{--ink:#05030F;--bg1:#0B0620;--bg2:#1E0B3A;--panel:#140C2E;--panel2:#1F1445;--text:#E9F7FF;--muted:#9C8FD0;--line:rgba(0,240,255,.18)}
+*,*::before,*::after{border-radius:0!important}
+body{font-size:20px;line-height:1.15;background:
+  linear-gradient(transparent 0 calc(100% - 1px),color-mix(in srgb,var(--pink) 16%,transparent) calc(100% - 1px)) 0 0/100% 24px,
+  linear-gradient(90deg,transparent 0 calc(100% - 1px),color-mix(in srgb,var(--cyan) 10%,transparent) calc(100% - 1px)) 0 0/24px 100%,
+  linear-gradient(180deg,var(--bg1),var(--bg2)) fixed;background-color:var(--bg1)}
+p{line-height:1.2}.small{font-size:17px}table{font-size:18px}th{font-size:16px}
+.logo{font-size:13px;color:var(--pink);text-shadow:2px 0 0 var(--cyan),3px 3px 0 var(--ink)}
+.logo small{font-size:17px}
+h2{font-size:13px;line-height:1.6;color:var(--cyan);text-shadow:3px 3px 0 var(--ink)}
+.kpi b{font-size:15px;line-height:1.6}
+.card,.kpi,.btn,nav.tabs button,input.f,select.f,textarea.f,.sheet,.toast,.bar,.tag{box-shadow:4px 4px 0 var(--ink)}
+.card{border-left-color:var(--cyan);box-shadow:4px 4px 0 var(--ink),4px 4px 0 1px color-mix(in srgb,var(--cyan) 35%,transparent)}
+.tag{box-shadow:none}
+.btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--ink)}
+.btn.red{background:var(--pink)}
+.dot{border-radius:0!important}
+.bar i{background-image:repeating-linear-gradient(90deg,transparent 0 8px,rgba(0,0,0,.18) 8px 10px)}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]) h2{color:#7A1BD6;text-shadow:2px 2px 0 #F9F002}}
+:root[data-theme="light"] h2{color:#7A1BD6;text-shadow:2px 2px 0 #F9F002}
+.grid{grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}
+.logo small{display:block;margin:4px 0 0}
+
+/* ===== v2 leggibilità ===== */
+:root,:root[data-theme="dark"]{--bg1:#07040F;--bg2:#0D0820;--panel:#1C1440;--panel2:#281D57;--text:#F4F2FF;--muted:#B9B2DD;--edge:#3A2D7A;--line:rgba(185,178,221,.18)}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){--bg1:#E4E8F5;--bg2:#ECE6F7;--panel:#FFFFFF;--panel2:#F1EEFB;--text:#140B30;--muted:#554B80;--edge:#C9BFEA}}
+:root[data-theme="light"]{--bg1:#E4E8F5;--bg2:#ECE6F7;--panel:#FFFFFF;--panel2:#F1EEFB;--text:#140B30;--muted:#554B80;--edge:#C9BFEA}
+body{font-size:15px;line-height:1.45;background:linear-gradient(180deg,var(--bg1),var(--bg2)) fixed;background-color:var(--bg1)}
+p{line-height:1.45}.small{font-size:13px}table{font-size:14px}th{font-size:12.5px}
+.logo small{font-size:13px}
+.kpi b{font-family:"Chakra Petch",system-ui,sans-serif;font-weight:700;font-size:20px;line-height:1.2}
+.card{background:var(--panel);border:2px solid var(--edge);border-top-color:color-mix(in srgb,var(--cyan) 70%,var(--edge));box-shadow:0 0 0 2px var(--ink),0 6px 0 2px var(--ink)}
+.kpi{background:var(--panel2);border:2px solid var(--edge);box-shadow:none}
+nav.tabs button,input.f,select.f,textarea.f,.sheet{border:2px solid var(--edge);box-shadow:0 0 0 2px var(--ink),0 3px 0 2px var(--ink)}
+.btn{border:2px solid var(--ink);box-shadow:0 3px 0 var(--ink);font-weight:700}
+.btn.ghost{border-color:var(--edge)}
+.tag{font-size:11.5px}
+.toast{pointer-events:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="logo">DegenLand<small>console amministratore</small></div>
+    <span class="small muted" id="who">non connesso</span> <button class="btn sm ghost" id="bLogout" style="margin-left:8px">Esci</button>
+  </header>
+  <nav class="tabs" id="nav" aria-label="Sezioni della console" hidden>
+    <button data-t="dash" aria-current="page">📊 Panoramica</button>
+    <button data-t="wd">💸 Prelievi<span class="n" id="nWd">0</span></button>
+    <button data-t="users">👥 Utenti</button>
+      <button data-t="pio">⭐ Pionieri</button>
+    <button data-t="pool">🛰️ Pool</button>
+    <button data-t="set">⚙️ Parametri</button>
+    <button data-t="log">📜 Registro</button>
+  </nav>
+
+  <!-- ACCESSO -->
+  <section id="t-login">
+    <div class="card" id="setupCard" hidden style="max-width:420px;margin:30px auto">
+      <h2>Primo avvio</h2>
+      <p class="small muted">Crea il primo amministratore. Serve il codice di primo avvio che hai impostato tra le variabili del progetto (BOOTSTRAP_TOKEN).</p>
+      <label class="l" for="suEmail" style="margin-top:10px">La tua email</label><input class="f" id="suEmail" type="email" style="width:100%">
+      <label class="l" for="suName" style="margin-top:10px">Nome</label><input class="f" id="suName" style="width:100%">
+      <label class="l" for="suTok" style="margin-top:10px">Codice di primo avvio</label><input class="f" id="suTok" type="password" autocomplete="off" style="width:100%">
+      <button class="btn mint" id="suGo" style="width:100%;margin-top:14px">Crea il primo amministratore</button>
+    </div>
+    <div class="card" id="loginCard" style="max-width:420px;margin:30px auto">
+      <h2>Accesso alla console</h2>
+      <p class="small muted">Inserisci email, chiave d'accesso e il codice a 6 cifre dell'app di autenticazione.</p>
+      <label class="l" for="lgEmail" style="margin-top:10px">Email</label><input class="f" id="lgEmail" type="email" autocomplete="username" style="width:100%">
+      <label class="l" for="lgKey" style="margin-top:10px">Chiave d'accesso</label><input class="f" id="lgKey" type="password" autocomplete="current-password" style="width:100%">
+      <label class="l" for="lgCode" style="margin-top:10px">Codice a 6 cifre</label><input class="f" id="lgCode" inputmode="numeric" maxlength="6" autocomplete="one-time-code" style="width:100%">
+      <button class="btn" id="lgGo" style="width:100%;margin-top:14px">Entra</button>
+    </div>
+  </section>
+  <!-- PANORAMICA -->
+  <section id="t-dash">
+    <div class="card">
+      <div class="row"><h2 class="grow" style="margin:0">Salute della pool</h2><span id="hBadge"></span></div>
+      <div class="grid" style="margin-top:10px" id="kpiPool"></div>
+      <p class="small muted" style="margin-top:10px" id="hExplain"></p>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <h3>Entrate ultimi 30 giorni</h3>
+        <div id="srcIn"></div>
+      </div>
+      <div class="card">
+        <h3>Uscite ultimi 30 giorni</h3>
+        <div id="srcOut"></div>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <h3>Giocatori</h3>
+        <div id="kvPlayers"></div>
+      </div>
+      <div class="card">
+        <h3>Da fare oggi</h3>
+        <div id="todo"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRELIEVI -->
+  <section id="t-wd" hidden>
+    <div class="card">
+      <div class="row">
+        <h2 class="grow" style="margin:0">Coda prelievi</h2>
+        <select class="f" id="wdFilter" aria-label="Filtra richieste">
+          <option value="attesa">Da eseguire</option><option value="pulite">Da eseguire · senza segnalazioni</option><option value="segnalate">Da eseguire · segnalate</option>
+          <option value="eseguito">Eseguiti</option><option value="rifiutato">Rifiutati</option>
+        </select>
+      </div>
+      <p class="small muted" style="margin-top:6px">Le richieste vanno gestite entro 48 ore. Controlla la richiesta, esegui il pagamento a mano dal wallet caldo e poi spuntala come eseguita. Le richieste segnalate vanno aperte una per una.</p>
+      <div class="row" style="margin:10px 0" id="wdBulk">
+        <button class="btn mint" id="bApprove">Segna selezionate come eseguite</button>
+        <button class="btn ghost" id="bSelClean">Seleziona le pulite</button>
+        <button class="btn cyan" id="bCopy">Copia indirizzi e importi</button>
+        <span class="small muted grow" id="wdSum" style="text-align:right"></span>
+      </div>
+      <div class="tbl"><table><thead id="wdHead"></thead><tbody id="wdBody"></tbody></table></div>
+    </div>
+  </section>
+
+  <!-- UTENTI -->
+  <section id="t-users" hidden>
+    <div id="lbAdmin"></div>
+    <div class="card">
+      <div class="row">
+        <h2 class="grow" style="margin:0">Utenti</h2>
+        <input class="f" id="uSearch" placeholder="Cerca nome, email, Telegram, IP" style="width:min(320px,100%)">
+        <select class="f" id="uFilter" aria-label="Filtra utenti"><option value="all">Tutti</option><option value="flag">Con segnalazioni</option><option value="sosp">Sospesi</option></select>
+      </div>
+      <div class="tbl" style="margin-top:10px"><table>
+        <thead><tr><th>Utente</th><th>Accesso</th><th class="num">Speso</th><th class="num">Prelevato</th><th class="num">Saldo</th><th class="num">Miner</th><th>IP</th><th>Stato</th></tr></thead>
+        <tbody id="uBody"></tbody></table></div>
+    </div>
+  </section>
+
+  <!-- POOL -->
+  <section id="t-pool" hidden>
+    <div class="card">
+      <h2>Pool attuale</h2>
+      <div class="grid" id="kpiSeason"></div>
+      <div class="bar" style="margin-top:12px"><i id="seasonBar" style="background:repeating-linear-gradient(45deg,var(--sun) 0 10px,var(--orange) 10px 20px)"></i></div>
+      <div class="row small muted" style="justify-content:space-between"><span>0</span><span>halving 100k · 300k · 600k</span><span>chiusura 1M</span></div>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <h3>Liquidità</h3>
+        <div id="kvLiq"></div>
+        
+      </div>
+      <div class="card">
+        <h3>Stagioni</h3>
+        <div class="tbl"><table><thead><tr><th>Pool</th><th>Periodo</th><th class="num">Blocchi</th><th class="num">Rottamazione</th><th>Stato</th></tr></thead><tbody id="seasonsBody"></tbody></table></div>
+      </div>
+    </div>
+    <div id="poolExtra" class="grid2"></div>
+  </section>
+  <section id="t-pio" hidden><div id="pioBox"></div></section>
+  <!-- PARAMETRI -->
+  <section id="t-set" hidden>
+    <div class="card">
+      <h2>Parametri del gioco</h2>
+      <p class="small muted">Ogni modifica viene salvata nel registro con autore e data. Le modifiche alle regole economiche valgono dalla prossima pool, per non cambiare le condizioni a chi sta già giocando.</p>
+      <h3 style="margin-top:12px">Miner</h3>
+      <div class="tbl"><table><thead><tr><th>Miner</th><th class="num">Prezzo (SOL)</th><th class="num">Rientro (blocchi)</th><th class="num">Guasto (blocchi)</th></tr></thead><tbody id="setMiners"></tbody></table></div>
+      <h3 style="margin-top:14px">Economia</h3>
+      <div class="set" id="setEco"></div>
+      <div class="row" style="margin-top:14px"><button class="btn mint" id="bSave">Salva per la prossima pool</button><span class="small muted" id="setNote"></span></div>
+    </div>
+    <div id="setExtra"></div>
+  </section>
+  <!-- REGISTRO -->
+  <section id="t-log" hidden>
+    <div class="card">
+      <h2>Registro attività</h2>
+      <p class="small muted">Tutte le azioni degli amministratori, in ordine dalla più recente.</p>
+      <div class="log" id="logBody"></div>
+    </div>
+  </section>
+</div>
+
+<div class="overlay" id="ov"><div class="sheet" id="sheet"></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+/* ===================== Console DegenLand · collegata al server =====================
+   Accesso con email + chiave d'accesso + codice dell'app di autenticazione.
+   Tutti i dati arrivano dalle API /api/admin/*. */
+const $ = id => document.getElementById(id);
+const LAM = 1e9;
+const n2=v=>Number(v).toLocaleString('it-IT',{minimumFractionDigits:2,maximumFractionDigits:2});
+const n3=v=>Number(v).toLocaleString('it-IT',{minimumFractionDigits:3,maximumFractionDigits:3});
+const n4=v=>Number(v).toLocaleString('it-IT',{minimumFractionDigits:4,maximumFractionDigits:4});
+const n0=v=>Math.round(v).toLocaleString('it-IT');
+const sol=l=>l/LAM;
+const fmtD=t=>t?new Date(t).toLocaleString('it-IT',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'–';
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const short=a=>a?a.slice(0,4)+'…'+a.slice(-4):'';
+function toast(t){ const el=$('toast'); el.textContent=t; el.classList.add('show'); clearTimeout(toast.t); toast.t=setTimeout(()=>el.classList.remove('show'),2800); }
+const FLAG={pioniere:'Pioniere',account_nuovo:'Account nuovo',solo_miner_gratuito:'Solo miner gratuito',ip_condiviso:'IP condiviso',indirizzo_condiviso:'Indirizzo condiviso',indirizzo_recente:'Indirizzo cambiato da poco',referral_stesso_ip:'Referral con stesso IP',prelievi_alti:'Prelievi alti rispetto alla spesa',senza_conferma_telegram:'Senza conferma Telegram'};
+const ERRT={bad_credentials:'Credenziali non valide',rate_limited:'Troppi tentativi: riprova tra qualche minuto',forbidden:'Non hai il permesso',role_not_allowed:'Permesso insufficiente per questa azione',read_only:'Account in sola lettura',withdrawal_not_found:'Richiesta non più in attesa',reason_required:'Serve un motivo',invalid_params:'Parametri non validi',invalid_miners:'Miner non validi',invalid_halvings:'Soglie di halving non valide',invalid_amount:'Importo non valido',invalid_asset:'Valuta non valida',already_bootstrapped:'Già configurato',identity_in_use:'Questa email appartiene già a un altro account',invalid_email:'Email non valida',user_not_found:'Utente non trovato',dev_account_protected:'Account del team protetto'};
+let ME=null;
+async function api(method,path,body,extra){
+  const res=await fetch(path,{method,headers:Object.assign({'Content-Type':'application/json','X-DL':'1'},extra||{}),credentials:'same-origin',body:method==='GET'?undefined:JSON.stringify(body||{})});
+  let j={}; try{ j=await res.json(); }catch(e){}
+  if(res.status===401 && !path.endsWith('/login') && !path.endsWith('/setup')){ ME=null; showLogin(); const e=new Error('unauth'); e.code='unauthorized'; throw e; }
+  if(!j.ok){ const e=new Error(j.error||'error'); e.code=j.error||'error'; throw e; }
+  return j;
+}
+async function act(fn){ try{ return await fn(); }catch(e){ if(e.code!=='unauthorized') toast(ERRT[e.code]||('Errore: '+e.code)); return null; } }
+const can={ wd:()=>ME&&['superadmin','operatore'].includes(ME.role), user:()=>ME&&['superadmin','operatore','supporto'].includes(ME.role), money:()=>ME&&ME.role==='superadmin' };
+
+/* ---------- accesso ---------- */
+async function checkSetup(){ try{ const s=await api('GET','/api/admin/setup'); $('setupCard').hidden=!s.needs_setup; $('loginCard').hidden=!!s.needs_setup && false; }catch(e){ $('setupCard').hidden=true; } }
+function showLogin(){ checkSetup(); $('t-login').hidden=false; document.querySelectorAll('section[id^="t-"]:not(#t-login)').forEach(s=>s.hidden=true); $('nav').hidden=true; $('who').textContent='non connesso'; }
+$('lgGo').onclick=()=>act(async()=>{ const r=await api('POST','/api/admin/login',{email:$('lgEmail').value.trim(),key:$('lgKey').value.trim(),code:$('lgCode').value.trim()}); ME=r; $('lgKey').value=''; $('lgCode').value=''; await enter(); });
+async function enter(){ $('t-login').hidden=true; $('nav').hidden=false; $('who').textContent=`${ME.name} · ${ME.role}`; show('dash'); await renderAll(); }
+$('bLogout').onclick=()=>act(async()=>{ await api('POST','/api/admin/logout',{}); ME=null; showLogin(); });
+
+$('suGo').onclick=()=>act(async()=>{ const email=$('suEmail').value.trim(), name=$('suName').value.trim()||'Admin', tok=$('suTok').value.trim(); if(!email||!tok) return toast('Compila email e codice di primo avvio');
+  const r=await api('POST','/api/admin/bootstrap',{email,name},{'X-Bootstrap':tok}); $('suTok').value='';
+  openSheet(`<h3>Amministratore creato</h3><p class="small" style="color:var(--red);font-weight:700">Salva questi due dati ORA: non verranno più mostrati.</p>
+    <div class="kv"><span>1) Chiave d'accesso</span></div><input class="f" style="width:100%" readonly value="${esc(r.access_key)}" onclick="this.select()"><button class="btn ghost" id="cpKey" style="width:100%;margin:6px 0">Copia la chiave</button>
+    <div class="kv"><span>2) Codice per l'app di autenticazione</span></div><input class="f" style="width:100%" readonly value="${esc(r.totp_secret)}" onclick="this.select()"><button class="btn ghost" id="cpSec" style="width:100%;margin:6px 0">Copia il codice</button>
+    <p class="small muted">Nell'app di autenticazione (Google Authenticator, Authy, 1Password…) scegli "inserisci una chiave di configurazione", incolla il codice e usa il nome "DegenLand". Puoi anche provare <a href="${esc(r.otpauth)}">questo link</a> dal telefono.</p>`,()=>{
+    const cp=(v)=>{ try{ navigator.clipboard.writeText(v); toast('Copiato'); }catch(e){ toast('Selezionalo e copialo a mano'); } };
+    $('cpKey').onclick=()=>cp(r.access_key); $('cpSec').onclick=()=>cp(r.totp_secret); $('lgEmail').value=email; $('setupCard').hidden=true; }); });
+
+/* ---------- panoramica ---------- */
+let DASH=null;
+async function renderDash(){
+  DASH=await api('GET','/api/admin/dashboard'); const H=DASH.health;
+  const state=H.coverage>=2?['Solida','var(--mint)']:H.coverage>1?['Attenzione','var(--sun)']:['Sotto la soglia','var(--red)'];
+  $('hBadge').innerHTML=`<span class="dot" style="background:${state[1]}"></span><b>${state[0]}</b>`;
+  const k=[['Pool totale',n2(sol(H.pool_lamports))+' SOL'],['Saldi dei giocatori',n2(sol(H.users_lamports))+' SOL'],['Prelievi in coda',n3(sol(H.pending_lamports))+' SOL'],['Produzione 30 giorni',n2(sol(H.prod30))+' SOL'],['Soglia di sicurezza',n2(sol(H.threshold))+' SOL'],['Copertura',H.coverage>=99?'∞':n2(H.coverage)+'×'],['Rottamazione prevista',Math.round(H.scrap_pct*100)+'%'],['Cambio SOL/USD',n2(DASH.sol_usd)+' $']];
+  $('kpiPool').innerHTML=k.map(([l,v])=>`<div class="kpi"><span class="small muted">${l}</span><b>${v}</b></div>`).join('');
+  $('hExplain').textContent=`Soglia = saldi dei giocatori + prelievi in coda + ${30} giorni di produzione. Con copertura da 2× in su la rottamazione è piena; scende fino al minimo quando la pool arriva alla soglia.`;
+  const LBL={deposito:'Depositi (SOL → token)',conversione_saldo:'Conversioni di saldo',tesoreria_rendimento:'Rendimento staking',tesoreria_ricavi_extra:'Ricavi extra (pubblicità…)',produzione:'Produzione ai giocatori',referral:'Referral'};
+  const inn={},out={}; DASH.flows_30d.forEach(f=>{ const v=f.amount; const key=LBL[f.kind]||f.kind; if(v>0) inn[key]=(inn[key]||0)+v; else if(v<0) out[key]=(out[key]||0)+(-v); });
+  const bars=(o,c)=>{ const ks=Object.keys(o); if(!ks.length) return '<p class="small muted">Nessun movimento.</p>'; const mx=Math.max(...Object.values(o)); return ks.map(k=>`<div class="src"><span>${k}</span><div class="bar"><i style="width:${o[k]/mx*100}%;background:${c}"></i></div><b style="text-align:right">${n3(sol(o[k]))}</b></div>`).join('')+`<div class="kv" style="margin-top:6px"><span>Totale</span><b>${n3(sol(Object.values(o).reduce((a,b)=>a+b,0)))} SOL</b></div>`; };
+  $('srcIn').innerHTML=bars(inn,'var(--mint)'); $('srcOut').innerHTML=bars(out,'var(--pink)');
+  $('kvPlayers').innerHTML=[['Account registrati',DASH.users],['Paganti (con depositi)',DASH.paying],['Farm accese ora',DASH.active_farms],['Pool',`${DASH.pool.number} · ${n0(DASH.pool.blocks)} blocchi`],['Halving effettuati',`${DASH.pool.halvings} su 3`],['Stato pool',DASH.pool.status]].map(([a,b])=>`<div class="kv"><span>${a}</span><b>${b}</b></div>`).join('');
+  const q=DASH.queue, todo=[];
+  if(q.pending && q.oldest && Date.now()-q.oldest>36*3600000) todo.push('<span class="tag t-red">Urgente</span> richieste in attesa da più di 36 ore');
+  if(q.pending) todo.push(`<span class="tag t-sun">Prelievi</span> ${q.pending} da eseguire (${n3(sol(q.lamports))} SOL), di cui ${q.flagged} segnalate`);
+  if(DASH.unmatched_deposits) todo.push(`<span class="tag t-pink">Depositi</span> ${DASH.unmatched_deposits} non abbinati da assegnare`);
+  if(H.coverage<2) todo.push('<span class="tag t-cyan">Pool</span> copertura sotto 2×: la rottamazione prevista scende');
+  if(!todo.length) todo.push('Nessuna azione in sospeso.');
+  $('todo').innerHTML=todo.map(t=>`<div class="kv" style="justify-content:flex-start">${t}</div>`).join('');
+  $('nWd').textContent=q.pending;
+}
+
+/* ---------- prelievi ---------- */
+let WD=[], SEL=new Set();
+async function renderWd(){
+  const f=$('wdFilter').value; const status=(f==='pulite'||f==='segnalate'||f==='attesa')?'attesa':f;
+  WD=(await api('GET','/api/admin/withdrawals?status='+status)).withdrawals;
+  let list=WD; if(f==='pulite') list=WD.filter(r=>!r.risk_flags.length); if(f==='segnalate') list=WD.filter(r=>r.risk_flags.length);
+  const pending=status==='attesa'; $('wdBulk').hidden=!pending; for(const id of [...SEL]) if(!list.find(r=>r.id===id)) SEL.delete(id);
+  $('wdHead').innerHTML=`<tr>${pending?'<th><input type="checkbox" id="selAll" aria-label="Seleziona tutte"></th>':''}<th>Richiesta</th><th>Utente</th><th class="num">Importo</th><th>Indirizzo</th><th>${pending?'Attesa':'Data'}</th><th>Segnali</th><th></th></tr>`;
+  $('wdBody').innerHTML=list.length?list.map(r=>{ const wait=(Date.now()-r.created_at)/3600000;
+    const w=pending?`<span class="tag ${wait>36?'t-red':wait>24?'t-sun':'t-grey'}">${Math.floor(wait)} h</span>`:`<span class="small muted">${fmtD(r.handled_at||r.created_at)}</span>`;
+    const flags=r.risk_flags.length?r.risk_flags.map(x=>`<span class="tag t-sun">${FLAG[x]||x}</span>`).join(''):'<span class="tag t-mint">Nessuno</span>';
+    const act=pending?(can.wd()?`<button class="btn sm mint" data-exec="${r.id}">Eseguito</button> <button class="btn sm ghost" data-open="${r.id}">Apri</button>`:`<button class="btn sm ghost" data-open="${r.id}">Apri</button>`):(status==='eseguito'?`<span class="small muted">${esc(short(r.tx_signature)||'eseguito')}</span>`:`<span class="small muted">${esc(r.reject_reason||'')}</span>`);
+    return `<tr class="${SEL.has(r.id)?'sel':''}">${pending?`<td><input type="checkbox" data-sel="${r.id}" ${SEL.has(r.id)?'checked':''} aria-label="Seleziona richiesta ${r.id}"></td>`:''}<td>#${r.id}</td><td><button class="btn sm ghost" data-user="${r.user_id}">${esc(r.nickname)}</button></td><td class="num"><b>${n3(sol(r.lamports))}</b> SOL</td><td class="small"><button class="btn sm ghost" data-addr="${esc(r.address)}" title="Copia indirizzo">${esc(short(r.address))}</button></td><td>${w}</td><td style="white-space:normal;min-width:180px">${flags}</td><td style="white-space:nowrap">${act}</td></tr>`;
+  }).join(''):`<tr><td colspan="8" class="muted">Nessuna richiesta in questo elenco.</td></tr>`;
+  const sel=list.filter(r=>SEL.has(r.id)); $('wdSum').textContent=pending?`${sel.length} selezionate · ${n3(sol(sel.reduce((a,r)=>a+r.lamports,0)))} SOL`:''; $('bApprove').disabled=!sel.length||!can.wd(); $('bCopy').disabled=!sel.length;
+  document.querySelectorAll('[data-sel]').forEach(c=>c.onchange=()=>{ const id=+c.dataset.sel; c.checked?SEL.add(id):SEL.delete(id); renderWd(); });
+  if($('selAll')) $('selAll').onchange=e=>{ list.forEach(r=>e.target.checked?SEL.add(r.id):SEL.delete(r.id)); renderWd(); };
+  document.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>openReq(WD.find(r=>r.id==b.dataset.open)));
+  document.querySelectorAll('[data-exec]').forEach(b=>b.onclick=()=>execSheet([WD.find(r=>r.id==b.dataset.exec)]));
+  document.querySelectorAll('[data-user]').forEach(b=>b.onclick=()=>openUser(+b.dataset.user));
+  document.querySelectorAll('[data-addr]').forEach(b=>b.onclick=()=>{ try{ navigator.clipboard.writeText(b.dataset.addr); toast('Indirizzo copiato'); }catch(e){ toast(b.dataset.addr); } });
+}
+$('wdFilter').onchange=()=>{ SEL.clear(); act(renderWd); };
+$('bSelClean').onclick=()=>{ WD.filter(r=>!r.risk_flags.length).forEach(r=>SEL.add(r.id)); act(renderWd); };
+$('bCopy').onclick=()=>{ const lines=WD.filter(r=>SEL.has(r.id)).map(r=>`${r.address},${sol(r.lamports)}`).join('\n'); if(!lines) return; try{ navigator.clipboard.writeText(lines); toast('Copiati indirizzo e importo, uno per riga'); }catch(e){ openSheet(`<h3>Da pagare</h3><textarea class="f" style="width:100%;height:220px" readonly>${esc(lines)}</textarea>`); } };
+$('bApprove').onclick=()=>{ const sel=WD.filter(r=>SEL.has(r.id)); if(!sel.length) return; const fl=sel.filter(r=>r.risk_flags.length);
+  if(fl.length) return openSheet(`<h3>Ci sono richieste segnalate</h3><p>${fl.length} delle richieste selezionate hanno segnalazioni: vanno aperte e controllate una per una.</p>${sel.length>fl.length?`<div class="row" style="margin-top:10px"><button class="btn" id="okOnlyClean">Continua solo con le ${sel.length-fl.length} pulite</button></div>`:''}`,()=>{ if($('okOnlyClean')) $('okOnlyClean').onclick=()=>execSheet(sel.filter(r=>!r.risk_flags.length)); });
+  execSheet(sel); };
+function execSheet(list){ if(!list.length) return; const tot=list.reduce((a,r)=>a+r.lamports,0);
+  openSheet(`<h3>Conferma pagamenti eseguiti</h3><p>${list.length===1?`Richiesta #${list[0].id} di ${esc(list[0].nickname)}: <b>${n3(sol(tot))} SOL</b> a <span class="small" style="word-break:break-all">${esc(list[0].address)}</span>`:`${list.length} richieste per un totale di <b>${n3(sol(tot))} SOL</b>`}.</p>
+    <p class="small muted">Spunta solo dopo aver inviato davvero i SOL dal wallet di tesoreria. La firma della transazione è facoltativa ma utile per i controlli e per il giocatore.</p>
+    <input class="f" id="txv" style="width:100%;margin-top:8px" placeholder="Firma della transazione (facoltativa)">
+    <label class="l" style="margin-top:10px;display:flex;gap:8px;align-items:center"><input type="checkbox" id="txok_chk"> Confermo di aver eseguito ${list.length===1?'il pagamento':'tutti i pagamenti'}</label>
+    <div class="row" style="margin-top:12px"><button class="btn mint grow" id="txok">Segna come eseguit${list.length===1?'o':'i'}</button></div>`,()=>{
+    $('txok').onclick=()=>{ if(!$('txok_chk').checked) return toast('Spunta la conferma prima di procedere'); const v=$('txv').value.trim();
+      act(async()=>{ let done=0; for(const r of list){ try{ await api('POST',`/api/admin/withdrawals/${r.id}/execute`,{tx:v||null}); done++; }catch(e){ if(e.code==='unauthorized') throw e; } } SEL.clear(); closeSheet(); toast(`${done} prelievi segnati come eseguiti`); await renderAll(); }); }; }); }
+function openReq(r){ const flags=r.risk_flags.length?r.risk_flags.map(x=>`<span class="tag t-sun">${FLAG[x]||x}</span>`).join(''):'<span class="tag t-mint">Nessuna segnalazione</span>';
+  openSheet(`<h3>Richiesta #${r.id} · ${n3(sol(r.lamports))} SOL</h3><div class="kv"><span>Utente</span><b>${esc(r.nickname)} (#${r.user_id})</b></div>
+    <div class="kv"><span>Indirizzo</span><b class="small" style="word-break:break-all;white-space:normal;text-align:right">${esc(r.address)}</b></div>
+    <div class="kv"><span>Età account</span><b>${Math.floor((Date.now()-r.user_created)/86400000)} giorni</b></div><div class="kv"><span>Avvii della farm</span><b>${r.starts}</b></div>
+    <div style="margin:8px 0">${flags}</div>
+    ${can.wd()?`<div class="row" style="margin-top:8px"><button class="btn mint grow" id="rex">Ho eseguito il pagamento</button></div>
+    <label class="l" for="rr" style="margin-top:14px">Oppure rifiuta · motivo visibile al giocatore</label>
+    <select class="f" id="rr" style="width:100%"><option>Account multipli</option><option>Uso di bot o automazioni</option><option>Abuso del sistema referral</option><option>Indirizzo non valido</option><option>Altro: contatta il supporto</option></select>
+    <label class="l" style="margin-top:8px;display:flex;gap:6px;align-items:center"><input type="checkbox" id="rs"> Sospendi anche l'account</label>
+    <div class="row" style="margin-top:10px"><button class="btn red grow" id="rj">Rifiuta e restituisci il SOL</button></div>`:''}`,()=>{
+    if($('rex')) $('rex').onclick=()=>execSheet([r]);
+    if($('rj')) $('rj').onclick=()=>act(async()=>{ await api('POST',`/api/admin/withdrawals/${r.id}/reject`,{reason:$('rr').value,suspend:$('rs').checked}); closeSheet(); toast('Richiesta rifiutata, SOL restituito al giocatore'); await renderAll(); }); }); }
+
+/* ---------- utenti ---------- */
+async function renderLbAdmin(){
+  const box=$('lbAdmin'); if(!box) return;
+  if(!box.dataset.init){ box.dataset.init=1; box.innerHTML=`<div class="card"><h3>Classifica per i premi</h3><p class="small muted">Vedi chi è in testa, anche chi si è nascosto dalla classifica pubblica, con la sua email. Il valore in $ usa il cambio di adesso.</p>
+      <div class="row" style="margin-top:8px"><select class="f" id="lbaBoard"><option value="power">Potenza (ora)</option><option value="mined">Estratto</option><option value="referral">Referral</option></select><select class="f" id="lbaPer"><option value="7d">7 giorni</option><option value="30d" selected>30 giorni</option><option value="all">Sempre</option></select><button class="btn" id="lbaGo">Mostra</button></div><div id="lbaOut" style="margin-top:10px"></div></div>`;
+    const go=()=>act(async()=>{ const b=$('lbaBoard').value, p=$('lbaPer').value; const d=await api('GET',`/api/admin/leaderboard?board=${b}&period=${p}&limit=50`);
+      $('lbaOut').innerHTML=d.rows.length?`<div class="tw"><table><thead><tr><th>#</th><th>Utente</th><th>Email</th><th class="num">${b==='power'?'GH/s':'$'}</th>${b==='referral'?'<th class="num">Invitati</th>':''}</tr></thead><tbody>`+d.rows.map(r=>`<tr><td>${r.rank}</td><td><button class="btn sm ghost" data-lbu="${r.id}">${esc(r.nickname)}</button> <span class="small muted">#${r.id}</span></td><td class="small">${esc(r.email||'–')}</td><td class="num">${b==='power'?n0(r.value):n2(r.value)}</td>${b==='referral'?`<td class="num">${r.extra||0}</td>`:''}</tr>`).join('')+'</tbody></table></div>':'<p class="small muted">Nessun dato per ora.</p>';
+      document.querySelectorAll('[data-lbu]').forEach(x=>x.onclick=()=>openUser(+x.dataset.lbu)); });
+    $('lbaGo').onclick=go; $('lbaBoard').onchange=()=>{ $('lbaPer').style.display=$('lbaBoard').value==='power'?'none':''; };
+  }
+}
+async function renderUsers(){
+  renderLbAdmin();
+  const q=encodeURIComponent($('uSearch').value.trim()), f=$('uFilter').value; const flt=f==='sosp'?'sospesi':f==='flag'?'segnalati':'all';
+  const rows=(await api('GET',`/api/admin/users?q=${q}&filter=${flt}`)).users;
+  $('uBody').innerHTML=rows.map(u=>`<tr><td><button class="btn sm ghost" data-u="${u.id}">${esc(u.nickname)}</button> <span class="small muted">#${u.id}</span></td><td class="small">${fmtD(u.created_at)}</td><td class="num">${n3(sol(u.deposited))}</td><td class="num">${n3(sol(u.withdrawn))}</td><td class="num">${n4(sol(u.sol||0))}</td><td class="num">${u.miners}</td><td class="small">${fmtD(u.last_seen_at)}</td><td><span class="tag ${u.status==='attivo'?'t-mint':'t-red'}">${u.status}</span></td></tr>`).join('')||'<tr><td colspan="8" class="muted">Nessun utente trovato.</td></tr>';
+  document.querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>openUser(+b.dataset.u));
+}
+$('uSearch').oninput=()=>{ clearTimeout(renderUsers.t); renderUsers.t=setTimeout(()=>act(renderUsers),300); }; $('uFilter').onchange=()=>act(renderUsers);
+function openUser(id){ act(async()=>{ const d=await api('GET','/api/admin/users/'+id); const u=d.user, b=d.balances;
+  openSheet(`<div class="row"><h3 class="grow">${esc(u.nickname)} <span class="small muted">#${u.id}</span></h3><span class="tag ${u.status==='attivo'?'t-mint':'t-red'}">${u.status}</span></div>
+    <div class="kv"><span>Accessi</span><b>${d.identities.map(i=>esc(i.display||i.subject)).join(', ')||'–'}</b></div>
+    <div class="kv"><span>Registrato</span><b>${fmtD(u.created_at)}</b></div><div class="kv"><span>Ultimo accesso</span><b>${fmtD(u.last_seen_at)}</b></div>
+    <div class="kv"><span>Saldi</span><b>${n4(sol(b.SOL))} SOL · ${n0(b.TOKEN/1000)} token · ${n0(b.CREDIT/1000)} credito</b></div>
+    <div class="kv"><span>Invitato da</span><b>${d.referrer?esc(d.referrer.nickname):'–'} · ha invitato ${d.referred}</b></div>
+    <div class="kv"><span>Indirizzo di prelievo</span><b class="small" style="word-break:break-all;white-space:normal;text-align:right">${d.addresses.length?esc(d.addresses[0].address):'–'}</b></div>
+    <div class="kv"><span>IP</span><b class="small" style="white-space:normal;text-align:right">${d.ips.map(i=>esc(i.ip)).join(', ')||'–'}</b></div>
+    ${d.shared_ips.length?`<div class="kv"><span>IP condivisi con</span><b class="small" style="white-space:normal;text-align:right">${d.shared_ips.map(s=>s.users.map(x=>esc(x.nickname)).join(', ')).join(' · ')}</b></div>`:''}
+    <h3 style="margin-top:10px">Miner (${d.miners.length})</h3><p class="small muted">${d.miners.map(m=>`#${m.id} modello ${m.model_id} · ${m.state}${m.broken?' · guasto':''}`).join('<br>')||'–'}</p>
+    <h3 style="margin-top:10px">Prelievi</h3>${d.withdrawals.length?d.withdrawals.map(w=>`<div class="kv small"><span>#${w.id} · ${fmtD(w.created_at)}</span><b>${n3(sol(w.lamports))} SOL · ${w.status}</b></div>`).join(''):'<p class="small muted">Nessun prelievo.</p>'}
+    <h3 style="margin-top:10px">Note</h3>${d.notes.map(n=>`<div class="small" style="margin:4px 0"><span class="muted">${fmtD(n.created_at)} · ${esc(n.name)}</span><br>${esc(n.body)}</div>`).join('')||'<p class="small muted">Nessuna nota.</p>'}
+    ${can.money()?`<h3 style="margin-top:12px">Rettifica saldo</h3><p class="small muted">Accredita o storna (numero negativo). Il motivo è obbligatorio e finisce nel registro attività.</p>
+    <div class="row" style="margin-top:6px"><select class="f" id="adAsset"><option value="SOL">SOL</option><option value="TOKEN">Token</option></select><input class="f grow" id="adAmt" type="number" step="0.001" placeholder="Importo (es. 0,1 o -0,1)"></div>
+    <input class="f" id="adWhy" style="width:100%;margin-top:6px" placeholder="Motivo (obbligatorio)"><button class="btn" id="adGo2" style="width:100%;margin-top:6px">Applica rettifica</button>`:''}
+    ${can.wd()?`<h3 style="margin-top:12px">Controlli</h3><p class="small muted">${d.pioneer_no?'Pioniere #'+d.pioneer_no+'. ':''}Sospendere i prelievi blocca solo le richieste; il ban chiude l'account e libera il posto da Pioniere.</p><input class="f" id="ctlWhy" style="width:100%;margin-top:6px" placeholder="Motivo (obbligatorio per il ban)"><div class="row" style="margin-top:6px;flex-wrap:wrap"><button class="btn ${u.wd_hold?'mint':'ghost'} grow" id="ctlHold">${u.wd_hold?'Riattiva prelievi':'Sospendi prelievi'}</button>${d.pioneer_no?'<button class="btn ghost grow" id="ctlRev">Revoca Pioniere</button>':'<button class="btn ghost grow" id="ctlGrant">Assegna Pioniere</button>'}<button class="btn red grow" id="ctlBan">Banna account</button></div>`:''}
+    ${can.user()?`<div class="row" style="margin-top:10px"><input class="f grow" id="rnIn" maxlength="16" placeholder="Nuovo nickname (moderazione)"><button class="btn ghost" id="rnGo">Rinomina</button></div><textarea class="f" id="unote" style="width:100%;height:60px;margin-top:8px" placeholder="Aggiungi una nota interna"></textarea>
+    <div class="row" style="margin-top:10px">${u.status==='attivo'?'<button class="btn red grow" id="ususp">Sospendi account</button>':'<button class="btn mint grow" id="ureact">Riattiva account</button>'}<button class="btn ghost grow" id="unsave">Salva nota</button></div>`:''}`,()=>{
+    if($('adGo2')) $('adGo2').onclick=()=>act(async()=>{ const r=await api('POST',`/api/admin/users/${id}/adjust`,{asset:$('adAsset').value,amount:parseFloat($('adAmt').value),reason:$('adWhy').value}); closeSheet(); toast('Rettifica applicata'); await renderAll(); });
+    const ctl=(action,msg,body)=>act(async()=>{ await api('POST',`/api/admin/users/${id}/${action}`,body||{reason:$('ctlWhy').value}); closeSheet(); toast(msg); await renderAll(); });
+    if($('ctlHold')) $('ctlHold').onclick=()=>ctl(u.wd_hold?'unhold':'hold',u.wd_hold?'Prelievi riattivati':'Prelievi sospesi');
+    if($('ctlRev')) $('ctlRev').onclick=()=>ctl('revoke_pioneer','Pioniere revocato: il posto è di nuovo libero');
+    if($('ctlGrant')) $('ctlGrant').onclick=()=>ctl('grant_pioneer','Pioniere assegnato');
+    if($('ctlBan')) $('ctlBan').onclick=()=>{ const w=$('ctlWhy').value.trim(); if(w.length<3) return toast('Scrivi il motivo del ban'); ctl('ban','Account bannato, posto liberato'); };
+    if($('rnGo')) $('rnGo').onclick=()=>act(async()=>{ await api('POST',`/api/admin/users/${id}/rename`,{nickname:$('rnIn').value.trim(),reason:'moderazione'}); closeSheet(); toast('Nickname aggiornato: l\'utente potrà sceglierne un altro'); await renderAll(); });
+    if($('ususp')) $('ususp').onclick=()=>act(async()=>{ await api('POST',`/api/admin/users/${id}/suspend`,{reason:'Sospeso dalla console'}); closeSheet(); toast('Account sospeso'); await renderAll(); });
+    if($('ureact')) $('ureact').onclick=()=>act(async()=>{ await api('POST',`/api/admin/users/${id}/reactivate`,{}); closeSheet(); toast('Account riattivato'); await renderAll(); });
+    if($('unsave')) $('unsave').onclick=()=>act(async()=>{ await api('POST',`/api/admin/users/${id}/note`,{body:$('unote').value}); closeSheet(); toast('Nota salvata'); }); }); }); }
+
+/* ---------- pool e tesoreria ---------- */
+async function renderPool(){
+  const d=await api('GET','/api/admin/pool'); const P=d.pool, H=d.health; const hb=[100000,300000,600000]; const halv=P.halvings; const closeAt=1000000;
+  $('kpiSeason').innerHTML=[['Pool',P.number],['Stato',P.status],['Blocchi',n0(P.blocks)],['Halving',`${halv} su 3`],['Copertura',H.coverage>=99?'∞':n2(H.coverage)+'×'],['Rottamazione prevista',Math.round(H.scrap_pct*100)+'%']].map(([l,v])=>`<div class="kpi"><span class="small muted">${l}</span><b>${v}</b></div>`).join('');
+  $('seasonBar').style.width=Math.min(100,P.blocks/closeAt*100)+'%';
+  $('kvLiq').innerHTML=[['Pool nel registro',n3(sol(H.pool_lamports))+' SOL'],['Saldi dei giocatori',n3(sol(H.users_lamports))+' SOL'],['Prelievi in coda',n3(sol(H.pending_lamports))+' SOL'],['Soglia di sicurezza',n3(sol(H.threshold))+' SOL']].map(([a,b])=>`<div class="kv"><span>${a}</span><b>${b}</b></div>`).join('');
+  $('seasonsBody').innerHTML=d.seasons.map(s=>`<tr><td>Pool ${s.number}</td><td>${fmtD(s.opened_at)} – ${s.closed_at?fmtD(s.closed_at):'in corso'}</td><td class="num">${n0(s.blocks)}</td><td class="num">${s.scrap_pct!=null?Math.round(s.scrap_pct*100)+'%':'–'}</td><td>${s.status}</td></tr>`).join('');
+  const ex=[];
+  ex.push(`<div class="card"><h3>Tesoreria</h3><p class="small muted">Registra i movimenti che aumentano la pool (rendimento dello staking, ricavi pubblicitari). Aggiornano il registro contabile e la copertura.</p>
+    <div class="row" style="margin-top:8px"><select class="f" id="trKind"><option value="rendimento">Rendimento staking</option><option value="ricavi_extra">Ricavi extra (pubblicità…)</option><option value="spostamento">Solo annotazione (spostamento)</option></select><input class="f grow" id="trAmt" type="number" min="0" step="0.001" placeholder="SOL"></div>
+    <input class="f" id="trNote" style="width:100%;margin-top:8px" placeholder="Nota o firma della transazione (facoltativa)"><div class="row" style="margin-top:8px"><button class="btn" id="trGo" ${can.money()?'':'disabled'}>Registra</button></div></div>`);
+  ex.push(`<div class="card"><h3>Cambio SOL/USD</h3><p class="small muted">Il cambio si aggiorna da solo; qui puoi impostarlo a mano se la lettura automatica non funziona.</p><div class="row" style="margin-top:8px"><input class="f grow" id="fxVal" type="number" min="1" step="0.01" placeholder="es. 130"><button class="btn" id="fxGo" ${can.money()?'':'disabled'}>Imposta</button></div></div>`);
+  ex.push(`<div class="card"><h3>Eventi della pool</h3>${d.events.length?d.events.map(e=>`<div class="kv small"><span>${fmtD(e.created_at)} · ${e.kind}${e.generation?` ${e.generation}`:''}</span><b>${n0(e.at_blocks)} blocchi</b></div>`).join(''):'<p class="small muted">Nessun evento.</p>'}
+    ${can.money()?'<div class="row" style="margin-top:10px"><button class="btn red" id="fcGo">Chiudi la pool adesso (test)</button></div>':''}</div>`);
+  try{ const tm=(await api('GET','/api/admin/team')).team;
+    if(tm){ const sl=tm.balances.SOL/LAM, tk=tm.balances.TOKEN/1000, es=(tm.earned.SOL||0)/LAM, et=(tm.earned.TOKEN||0)/1000;
+      ex.push(`<div class="card"><h3>Account del team (referral)</h3><p class="small muted">Chi si iscrive senza invito diventa un invitato di questo account, che riceve il ${Math.round((PARAMS&&PARAMS.referral_pct||0.15)*100)}% della sua produzione. È un normale account di gioco: per prelevare bisogna entrarci con un'email vera.</p>
+        <div class="kv"><span>Saldo SOL</span><b>${n4(sl)} SOL</b></div><div class="kv"><span>Saldo token</span><b>${n0(tk)}</b></div><div class="kv"><span>Referral incassato in tutto</span><b>${n4(es)} SOL · ${n0(et)} token</b></div><div class="kv"><span>Giocatori collegati</span><b>${tm.invited}</b></div>
+        <div class="kv"><span>Email di accesso</span><b>${esc(tm.email||'–')}</b></div>
+        ${tm.internal?'<p class="small" style="color:var(--red);font-weight:700;margin-top:8px">Nessuno può entrare in questo account: l\'email è interna. Collega un\'email vera per poter prelevare.</p>':''}
+        <div class="row" style="margin-top:8px"><input class="f grow" id="tmEmail" type="email" placeholder="Email vera (es. team@degenland.site)"><button class="btn" id="tmGo" ${can.money()?'':'disabled'}>Collega email</button></div></div>`); } }catch(e){}
+  $('poolExtra').innerHTML=ex.join('');
+  const dep=await api('GET','/api/admin/deposits?status=non_abbinato');
+  $('poolExtra').insertAdjacentHTML('beforeend',`<div class="card"><h3>Depositi non abbinati (${dep.deposits.length})</h3><p class="small muted">Importi arrivati alla tesoreria che non corrispondono a nessuna richiesta di deposito. Assegnali al giocatore giusto.</p>${dep.deposits.map(x=>`<div class="kv small" style="flex-wrap:wrap;gap:6px"><span>#${x.id} · ${n4(sol(x.lamports))} SOL · ${esc(short(x.sender))} · ${fmtD(x.detected_at)}</span>${can.money()?`<span class="row"><input class="f" data-as="${x.id}" type="number" placeholder="ID utente" style="width:110px"><button class="btn sm" data-asgo="${x.id}">Assegna</button></span>`:''}</div>`).join('')||'<p class="small muted">Nessuno.</p>'}</div>`);
+  if($('tmGo')) $('tmGo').onclick=()=>act(async()=>{ await api('POST','/api/admin/team/email',{email:$('tmEmail').value.trim()}); toast('Email collegata: ora puoi entrare nel gioco con quell\'indirizzo'); await renderAll(); });
+  if($('trGo')) $('trGo').onclick=()=>act(async()=>{ const lam=Math.round(parseFloat($('trAmt').value)*LAM); await api('POST','/api/admin/treasury',{kind:$('trKind').value,lamports:lam,note:$('trNote').value}); toast('Movimento registrato'); await renderAll(); });
+  if($('fxGo')) $('fxGo').onclick=()=>act(async()=>{ await api('POST','/api/admin/fx',{sol_usd:parseFloat($('fxVal').value)}); toast('Cambio aggiornato'); await renderAll(); });
+  if($('fcGo')) $('fcGo').onclick=()=>openSheet(`<h3>Chiudere la pool adesso?</h3><p>Tutti i miner della pool verranno rottamati in credito e si aprirà la pool successiva. Da usare solo per prove.</p><div class="row" style="margin-top:10px"><button class="btn red grow" id="fcOk">Sì, chiudi</button><button class="btn ghost grow" id="fcNo">Annulla</button></div>`,()=>{ $('fcNo').onclick=closeSheet; $('fcOk').onclick=()=>act(async()=>{ await api('POST','/api/admin/pool/force-close',{}); closeSheet(); toast('Pool chiusa'); await renderAll(); }); });
+  document.querySelectorAll('[data-asgo]').forEach(b=>b.onclick=()=>act(async()=>{ const id=b.dataset.asgo, u=document.querySelector(`[data-as="${id}"]`).value; await api('POST',`/api/admin/deposits/${id}/assign`,{user_id:+u}); toast('Deposito assegnato'); await renderAll(); }));
+}
+
+/* ---------- parametri ---------- */
+let PARAMS=null;
+const ECO=[['repair_pct','Riparazione (% del prezzo)',100],['scrap_max','Rottamazione massima (%)',100],['scrap_min','Rottamazione minima (%)',100],['break_from','Guasto da (% del rientro)',100],['break_to','Guasto fino a (% del rientro)',100],['referral_pct','Referral (% produzione)',100],['address_lock_hours','Blocco dopo cambio indirizzo (ore)',1],['market_min_pct','Mercato: minimo (% del listino)',100],['market_max_pct','Mercato: massimo (% del listino)',100],['tap_reward_milli','Estrazione: millesimi di token a tocco',1]];
+async function renderSet(){
+  const d=await api('GET','/api/admin/params'); PARAMS=d.current;
+  $('setMiners').innerHTML=PARAMS.miners.map((m,i)=>`<tr><td>${esc(m.name)}</td><td class="num"><input class="f" style="width:90px;text-align:right" type="number" step="0.005" value="${m.price_sol}" data-mp="${i}"></td><td class="num"><input class="f" style="width:90px;text-align:right" type="number" step="10" value="${m.payback}" data-mb="${i}"></td><td class="num small muted">${i===0?'mai':Math.round(m.payback*PARAMS.break_from)+'–'+Math.round(m.payback*PARAMS.break_to)}</td></tr>`).join('');
+  $('setEco').innerHTML=ECO.map(([k,l,mul])=>`<div><label class="l" for="eco_${k}">${l}</label><input class="f" id="eco_${k}" type="number" step="any" value="${+(PARAMS[k]*mul).toFixed(4)}" data-eco="${k}" data-mul="${mul}"></div>`).join('')+`<div><label class="l" for="eco_wmin">Prelievo minimo (SOL)</label><input class="f" id="eco_wmin" type="number" step="0.01" value="${PARAMS.withdraw_min_lamports/LAM}" data-wmin="1"></div>`;
+  $('setNote').textContent=`Set attuale: ${d.sets[0]?esc(d.sets[0].label):'–'}`;
+  $('bSave').disabled=!can.money();
+  const adm=can.money()?`<div class="card"><h3>Amministratori</h3><p class="small muted">Crea un accesso: la chiave e il codice per l'app di autenticazione vengono mostrati una sola volta.</p>
+    <div class="row" style="margin-top:8px"><input class="f grow" id="adEmail" type="email" placeholder="Email"><input class="f" id="adName" placeholder="Nome" style="width:130px"><select class="f" id="adRole"><option value="operatore">Operatore</option><option value="supporto">Supporto</option><option value="sola_lettura">Sola lettura</option><option value="superadmin">Superadmin</option></select></div>
+    <div class="row" style="margin-top:8px"><button class="btn" id="adGo">Crea accesso</button></div></div>`:'';
+  $('setExtra').innerHTML=adm;
+  if($('adGo')) $('adGo').onclick=()=>act(async()=>{ const r=await api('POST','/api/admin/admins',{email:$('adEmail').value,name:$('adName').value,role:$('adRole').value});
+    openSheet(`<h3>Accesso creato: ${esc(r.email)}</h3><p class="small muted">Salvali ora: non verranno più mostrati.</p><div class="kv"><span>Chiave d'accesso</span></div><input class="f" style="width:100%" readonly value="${esc(r.access_key)}"><div class="kv"><span>Segreto per l'app di autenticazione</span></div><input class="f" style="width:100%" readonly value="${esc(r.totp_secret)}">`); });
+}
+$('bSave').onclick=()=>act(async()=>{ const data={}; const miners=PARAMS.miners.map(m=>({...m}));
+  document.querySelectorAll('[data-mp]').forEach(x=>miners[x.dataset.mp].price_sol=+x.value); document.querySelectorAll('[data-mb]').forEach(x=>miners[x.dataset.mb].payback=+x.value); data.miners=miners;
+  document.querySelectorAll('[data-eco]').forEach(x=>{ data[x.dataset.eco]=+x.value/+x.dataset.mul; }); const w=document.querySelector('[data-wmin]'); if(w) data.withdraw_min_lamports=Math.round(+w.value*LAM);
+  await api('POST','/api/admin/params',{label:'Modifica '+new Date().toLocaleDateString('it-IT'),data}); toast('Parametri salvati per la prossima pool'); await renderAll(); });
+
+/* ---------- registro ---------- */
+async function renderLog(){ const d=await api('GET','/api/admin/audit'); const LB={esegui_prelievo:'Prelievo eseguito',rifiuta_prelievo:'Prelievo rifiutato',sospendi_utente:'Utente sospeso',riattiva_utente:'Utente riattivato',nota_utente:'Nota su un utente',modifica_parametri:'Parametri modificati',crea_admin:'Amministratore creato',login_admin:'Accesso alla console',cambio_manuale:'Cambio impostato a mano',chiusura_forzata:'Pool chiusa manualmente',assegna_deposito:'Deposito assegnato',rettifica_saldo:'Saldo rettificato'};
+  $('logBody').innerHTML=d.audit.map(l=>`<div><span class="muted">${fmtD(l.created_at)} · ${esc(l.name||'sistema')}</span><br>${LB[l.action]||esc(l.action)}${l.target_id?` · #${l.target_id}`:''}${l.after?` <span class="small muted">${esc(String(l.after).slice(0,120))}</span>`:''}</div>`).join('')||'<p class="small muted">Nessuna attività.</p>'; }
+
+/* ---------- pionieri, IP condivisi, connessioni autorizzate ---------- */
+async function renderPio(){
+  const [P,C,L]=await Promise.all([api('GET','/api/admin/pioneers'),api('GET','/api/admin/ip-conflicts'),api('GET','/api/admin/ip-allow')]);
+  const st=P.slots?`<div class="kpis"><div class="kpi"><span class="small muted">Posti Pionieri</span><b>${P.taken} / ${P.slots}</b></div><div class="kpi"><span class="small muted">Liberi</span><b>${P.left}</b></div><div class="kpi"><span class="small muted">Conflitti IP</span><b>${C.conflicts.length}</b></div></div>`:'<p class="small" style="color:var(--red);font-weight:700">Programma spento: imposta la variabile PIONEER_SLOTS (es. 100) nel progetto per attivarlo.</p>';
+  $('pioBox').innerHTML=`<div class="card"><h3>Programma Pionieri</h3><p class="small muted">Un Pioniere per connessione. Con un ban o una revoca il posto si libera e il contatore pubblico si aggiorna da solo.</p>${st}
+    <div class="tw" style="margin-top:8px"><table><thead><tr><th>#</th><th>Utente</th><th>Email</th><th>Iscritto</th><th class="num">Stessa connessione</th><th>Stato</th></tr></thead><tbody>${P.pioneers.map(x=>`<tr><td>${x.no}</td><td><button class="btn sm ghost" data-pu="${x.id}">${esc(x.nickname)}</button></td><td class="small">${esc(x.email||'–')}</td><td class="small">${fmtD(x.created_at)}</td><td class="num">${x.shared?`<span class="tag t-red">${x.shared}</span>`:'0'}</td><td><span class="tag ${x.status==='attivo'?'t-mint':'t-red'}">${x.status}</span>${x.wd_hold?' <span class="tag t-sun">prelievi sospesi</span>':''}</td></tr>`).join('')||'<tr><td colspan="6" class="muted">Nessun Pioniere.</td></tr>'}</tbody></table></div></div>
+    <div class="card"><h3>Connessioni condivise (30 giorni)</h3><p class="small muted">Account diversi dalla stessa connessione. Chi lo comunica al supporto si autorizza qui; gli altri vanno controllati o banditi.</p>
+      ${C.conflicts.map(c=>`<div class="kv" style="flex-wrap:wrap;gap:6px"><span><b>${esc(c.ip_key)}</b> <span class="small muted">${fmtD(c.last)}</span><br>${c.users.map(u=>`<button class="btn sm ghost" data-pu="${u.id}">${esc(u.nickname)}${u.pioneer_no?' ★'+u.pioneer_no:''}${u.status!=='attivo'?' ('+u.status+')':''}</button>`).join(' ')}</span>${can.wd()?`<button class="btn sm" data-alw="${esc(c.ip_key)}">Autorizza</button>`:''}</div>`).join('')||'<p class="small muted">Nessuna connessione condivisa.</p>'}</div>
+    <div class="card"><h3>Connessioni autorizzate</h3>${L.allowed.map(a=>`<div class="kv" style="flex-wrap:wrap;gap:6px"><span><b>${esc(a.ip_key)}</b><br><span class="small muted">${esc(a.note||'')} · ${esc(a.admin||'')} · ${fmtD(a.created_at)}</span></span>${can.wd()?`<button class="btn sm ghost" data-rmv="${esc(a.ip_key)}">Rimuovi</button>`:''}</div>`).join('')||'<p class="small muted">Nessuna.</p>'}
+      ${can.wd()?`<div class="row" style="margin-top:8px"><input class="f" id="alIp" placeholder="IP o rete (es. 203.0.113.7)" style="width:170px"><input class="f grow" id="alNote" placeholder="Chi è e perché"><button class="btn" id="alGo">Autorizza</button></div>`:''}</div>`;
+  document.querySelectorAll('[data-pu]').forEach(b=>b.onclick=()=>openUser(+b.dataset.pu));
+  const allow=(ip,note)=>act(async()=>{ await api('POST','/api/admin/ip-allow',{ip_key:ip,note}); toast('Connessione autorizzata'); await renderPio(); });
+  document.querySelectorAll('[data-alw]').forEach(b=>b.onclick=()=>openSheet(`<h3>Autorizza ${esc(b.dataset.alw)}</h3><p class="small muted">Scrivi chi condivide la connessione e come è stato comunicato.</p><input class="f" id="alN" style="width:100%" placeholder="Es. Famiglia Rossi, scritto al supporto il 12/10"><button class="btn" id="alOk" style="width:100%;margin-top:10px">Autorizza</button>`,()=>{ $('alOk').onclick=()=>{ const n=$('alN').value.trim(); if(n.length<3) return toast('Serve una nota'); closeSheet(); allow(b.dataset.alw,n); }; }));
+  document.querySelectorAll('[data-rmv]').forEach(b=>b.onclick=()=>act(async()=>{ await api('POST','/api/admin/ip-allow/remove',{ip_key:b.dataset.rmv}); toast('Autorizzazione rimossa'); await renderPio(); }));
+  if($('alGo')) $('alGo').onclick=()=>allow($('alIp').value.trim(),$('alNote').value.trim());
+}
+
+/* ---------- sheet e navigazione ---------- */
+function openSheet(html,bind){ $('sheet').innerHTML=html+'<button class="btn ghost" id="shClose" style="width:100%;margin-top:10px">Chiudi</button>'; $('ov').classList.add('show'); $('shClose').onclick=closeSheet; if(bind) bind(); }
+function closeSheet(){ $('ov').classList.remove('show'); }
+$('ov').addEventListener('click',e=>{ if(e.target.id==='ov') closeSheet(); }); document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeSheet(); });
+let TAB='dash';
+function show(t){ TAB=t; ['dash','wd','users','pio','pool','set','log'].forEach(x=>$('t-'+x).hidden=x!==t); document.querySelectorAll('nav.tabs button').forEach(b=>{ if(b.dataset.t===t) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current'); }); act(()=>renderTab(t)); }
+async function renderTab(t){ return ({dash:renderDash,wd:renderWd,users:renderUsers,pio:renderPio,pool:renderPool,set:renderSet,log:renderLog})[t](); }
+document.querySelectorAll('nav.tabs button[data-t]').forEach(b=>b.onclick=()=>show(b.dataset.t));
+async function renderAll(){ await act(async()=>{ await renderDash(); if(TAB!=='dash') await renderTab(TAB); }); }
+setInterval(()=>{ if(ME && document.visibilityState==='visible' && $('ov').classList.contains('show')===false) act(async()=>{ await renderDash(); if(TAB==='wd') await renderWd(); }); },45000);
+(async function init(){ try{ ME=await api('GET','/api/admin/me'); await enter(); }catch(e){ showLogin(); } })();
+})();
+</script>
+</body>
+</html>

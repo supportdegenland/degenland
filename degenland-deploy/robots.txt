@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /game/
+Disallow: /console/
+Disallow: /api/
+
+Sitemap: https://degenland.site/sitemap.xml
