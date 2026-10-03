@@ -13,3 +13,4 @@ window.DEGENLAND = {
     discord: 'https://discord.gg/edEeZKzge'
   }
 };
+
