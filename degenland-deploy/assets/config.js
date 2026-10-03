@@ -5,7 +5,7 @@
                su quel browser. Con ?preview=off si torna alla schermata preview.
    social: lascia '' per nascondere un canale; incolla il link per mostrarlo ovunque. */
 window.DEGENLAND = {
-  preview: true,
+  preview: false,
   previewKey: 'dl-7e82430e',
   social: {
     x: '',
