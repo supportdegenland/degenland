@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#07040F">
+<meta name="robots" content="noindex">
+<title>DegenLand · Promo</title>
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Chakra+Petch:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/site.css">
+<script src="/assets/config.js"></script><script src="/assets/launch.js"></script>
+<style>
+.pr-top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:8px}
+.pr-top h1{margin-bottom:0}
+.linkbox{display:flex;gap:10px;margin-top:10px}
+.linkbox input{flex:1;min-width:0;font:600 15px "Chakra Petch",system-ui,sans-serif;padding:10px 12px;background:var(--bg1);color:var(--text);border:2px solid var(--edge)}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{font:600 14px "Chakra Petch",system-ui,sans-serif;background:transparent;color:var(--text);border:2px solid var(--edge);padding:6px 12px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--cyan);color:var(--ink);border-color:var(--cyan)}
+.grp{margin:34px 0 4px;font-size:20px}
+.grp + p{margin:0 0 14px;color:var(--muted)}
+.bn{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;align-items:start}
+.bn .card{display:flex;flex-direction:column;gap:12px;padding:14px}
+.bn .shot{display:flex;align-items:center;justify-content:center;background:var(--ink);border:2px solid var(--edge);padding:10px;min-height:110px}
+.bn .shot img{display:block;max-width:100%;height:auto;max-height:340px;image-rendering:pixelated}
+.bn .meta{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.bn .meta b{font-size:16px}
+.bn .meta span{font-size:14px;color:var(--muted)}
+.bn .acts{display:flex;flex-wrap:wrap;gap:8px}
+.bn .acts .btn{font-size:14px;padding:7px 12px;text-align:center;flex:1 1 auto}
+.rules{margin-top:34px}
+.rules ul{margin:8px 0 0;padding-left:20px}
+.rules li{margin:4px 0}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--mint);color:var(--ink);font-weight:700;padding:10px 16px;border:2px solid var(--ink);box-shadow:0 4px 0 var(--ink);opacity:0;pointer-events:none;transition:opacity .15s}
+.toast.show{opacity:1}
+@media (max-width:640px){.bn{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="logo" href="index.html">DegenLand</a>
+  <a class="btn" id="back" href="index.html">Gioca</a>
+</div></header>
+<main>
+<div class="wrap page">
+  <div class="pr-top">
+    <h1 id="h1">Materiale promozionale</h1>
+    <div class="seg" id="langs" role="group" aria-label="Language"></div>
+  </div>
+  <p class="lead" id="lead"></p>
+
+  <div class="card" id="needLogin" hidden>
+    <h3 id="nlT"></h3><p id="nlP"></p>
+    <p style="margin-top:12px"><a class="btn" href="index.html" id="nlB"></a></p>
+  </div>
+
+  <div id="content" hidden>
+    <div class="card">
+      <h3 id="myLinkT"></h3>
+      <div class="linkbox"><input id="myLink" readonly aria-labelledby="myLinkT"><button class="btn" type="button" id="copyLink"></button></div>
+    </div>
+
+    <h2 class="grp" id="gWeb"></h2><p id="gWebP"></p>
+    <div class="bn" id="web"></div>
+
+    <h2 class="grp" id="gSoc"></h2><p id="gSocP"></p>
+    <div class="bn" id="soc"></div>
+
+    <div class="card rules">
+      <h3 id="rT"></h3>
+      <ul id="rL"></ul>
+    </div>
+  </div>
+</div>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+(function(){
+  var T = {
+    it:{h1:'Materiale promozionale', lead:'Banner pronti con il tuo link personale. Chi si iscrive dai tuoi banner diventa tuo invitato e ricevi il {p}% di quello che produce, pagato dalla pool.',
+      nlT:'Accedi per vedere i tuoi banner', nlP:'I banner contengono il tuo link referral: entra nel gioco con il tuo account e torna qui.', nlB:'Vai al gioco', back:'Gioca',
+      myLink:'Il tuo link', copy:'Copia', copied:'Copiato', gWeb:'Siti, blog e forum', gWebP:'Formati standard per spazi pubblicitari. Il codice HTML mostra il banner già collegato al tuo link.',
+      gSoc:'Social', gSocP:'Immagini da pubblicare su X, Telegram e Discord. Aggiungi il tuo link nel testo del post.',
+      dl:'Scarica', html:'Copia HTML', bb:'Copia BBCode', link:'Copia link',
+      n:{'728x90':'Leaderboard','468x60':'Banner','320x50':'Mobile','300x250':'Rettangolo','160x600':'Grattacielo','300x600':'Mezza pagina','1200x628':'Post e anteprima link','1080x1080':'Post quadrato','1080x1920':'Storie'},
+      rT:'Regole per promuovere DegenLand', r:['Niente spam: non pubblicare il link in chat, gruppi o commenti dove non è gradito.','Non presentare DegenLand come un investimento e non promettere guadagni.','Non iscrivere account tuoi o di familiari con il tuo link.','Chi non rispetta le regole perde il programma referral. Dettagli nei <a href="../it/terms.html#t11">Termini</a>.']},
+    en:{h1:'Promo materials', lead:'Ready-made banners with your personal link. Anyone who signs up from your banners becomes your invitee, and you receive {p}% of what they produce, paid by the pool.',
+      nlT:'Sign in to see your banners', nlP:'The banners carry your referral link: sign in to the game with your account and come back here.', nlB:'Go to the game', back:'Play',
+      myLink:'Your link', copy:'Copy', copied:'Copied', gWeb:'Websites, blogs and forums', gWebP:'Standard ad formats. The HTML code shows the banner already linked to you.',
+      gSoc:'Social', gSocP:'Images to post on X, Telegram and Discord. Add your link in the text of the post.',
+      dl:'Download', html:'Copy HTML', bb:'Copy BBCode', link:'Copy link',
+      n:{'728x90':'Leaderboard','468x60':'Banner','320x50':'Mobile','300x250':'Rectangle','160x600':'Skyscraper','300x600':'Half page','1200x628':'Post and link preview','1080x1080':'Square post','1080x1920':'Stories'},
+      rT:'Rules for promoting DegenLand', r:['No spam: do not post the link in chats, groups or comments where it is not welcome.','Do not present DegenLand as an investment and do not promise earnings.','Do not sign up your own accounts or family members with your link.','Breaking these rules means losing the referral program. Details in the <a href="../en/terms.html#t11">Terms</a>.']},
+    es:{h1:'Material promocional', lead:'Banners listos con tu enlace personal. Quien se registre desde tus banners se convierte en tu invitado y recibes el {p}% de lo que produce, pagado por la pool.',
+      nlT:'Inicia sesión para ver tus banners', nlP:'Los banners llevan tu enlace de referido: entra al juego con tu cuenta y vuelve aquí.', nlB:'Ir al juego', back:'Jugar',
+      myLink:'Tu enlace', copy:'Copiar', copied:'Copiado', gWeb:'Webs, blogs y foros', gWebP:'Formatos publicitarios estándar. El código HTML muestra el banner ya enlazado contigo.',
+      gSoc:'Redes sociales', gSocP:'Imágenes para publicar en X, Telegram y Discord. Añade tu enlace en el texto de la publicación.',
+      dl:'Descargar', html:'Copiar HTML', bb:'Copiar BBCode', link:'Copiar enlace',
+      n:{'728x90':'Leaderboard','468x60':'Banner','320x50':'Móvil','300x250':'Rectángulo','160x600':'Rascacielos','300x600':'Media página','1200x628':'Post y vista previa','1080x1080':'Post cuadrado','1080x1920':'Historias'},
+      rT:'Reglas para promocionar DegenLand', r:['Nada de spam: no publiques el enlace en chats, grupos o comentarios donde no sea bienvenido.','No presentes DegenLand como una inversión ni prometas ganancias.','No registres cuentas propias ni de familiares con tu enlace.','Quien no respete las reglas pierde el programa de referidos. Detalles en los <a href="../es/terms.html#t11">Términos</a>.']},
+    ru:{h1:'Промо-материалы', lead:'Готовые баннеры с твоей личной ссылкой. Кто зарегистрируется через твои баннеры, станет твоим рефералом, а ты будешь получать {p}% от его добычи — платит пул.',
+      nlT:'Войди, чтобы увидеть свои баннеры', nlP:'В баннерах твоя реферальная ссылка: войди в игру со своим аккаунтом и вернись сюда.', nlB:'В игру', back:'Играть',
+      myLink:'Твоя ссылка', copy:'Копировать', copied:'Скопировано', gWeb:'Сайты, блоги и форумы', gWebP:'Стандартные рекламные форматы. HTML-код показывает баннер, уже связанный с твоей ссылкой.',
+      gSoc:'Соцсети', gSocP:'Картинки для публикаций в X, Telegram и Discord. Добавь свою ссылку в текст поста.',
+      dl:'Скачать', html:'Копировать HTML', bb:'Копировать BBCode', link:'Копировать ссылку',
+      n:{'728x90':'Лидерборд','468x60':'Баннер','320x50':'Мобильный','300x250':'Прямоугольник','160x600':'Небоскрёб','300x600':'Полстраницы','1200x628':'Пост и превью ссылки','1080x1080':'Квадратный пост','1080x1920':'Сторис'},
+      rT:'Правила продвижения DegenLand', r:['Без спама: не публикуй ссылку в чатах, группах и комментариях, где это неуместно.','Не представляй DegenLand как инвестицию и не обещай заработок.','Не регистрируй по своей ссылке собственные аккаунты или аккаунты родственников.','За нарушение правил участие в реферальной программе прекращается. Подробнее в <a href="../ru/terms.html#t11">Условиях</a>.']}
+  };
+  var ALT = {en:'DegenLand – build your mining farm in a neon city', es:'DegenLand – construye tu granja minera', it:'DegenLand – costruisci la tua farm', ru:'DegenLand – построй майнинг-ферму'};
+  var WEB = ['728x90','468x60','320x50','300x250','300x600','160x600'], SOC = ['1200x628','1080x1080','1080x1920'];
+  var L = ['en','es','ru','it'];
+  var ORIGIN = /\.pages\.dev$/.test(location.hostname) ? 'https://degenland.site' : location.origin;
+  var lang = 'en';
+  try{ var q = new URLSearchParams(location.search).get('lang'); var s = localStorage.getItem('degenland_lang');
+    lang = L.indexOf(q) >= 0 ? q : (L.indexOf(s) >= 0 ? s : (L.indexOf((navigator.language||'').slice(0,2)) >= 0 ? navigator.language.slice(0,2) : 'en')); }catch(e){}
+  var bLang = lang, REF = null, PCT = 15;
+  function $(id){ return document.getElementById(id); }
+  function esc(v){ return String(v).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function toast(m){ var t = $('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toast.h); toast.h = setTimeout(function(){ t.classList.remove('show'); }, 1800); }
+  function copy(text){
+    var done = function(){ toast(T[lang].copied); };
+    if(navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(done, fallback); else fallback();
+    function fallback(){ var a = document.createElement('textarea'); a.value = text; a.style.position = 'fixed'; a.style.opacity = '0'; document.body.appendChild(a); a.select(); try{ document.execCommand('copy'); done(); }catch(e){ prompt('', text); } a.remove(); }
+  }
+  function link(){ return ORIGIN + '/game/?ref=' + encodeURIComponent(REF); }
+  function img(size){ return '/assets/banners/' + bLang + '/' + size + '.png'; }
+  function code(size, kind){
+    var wh = size.split('x'), src = ORIGIN + img(size);
+    if(kind === 'bb') return '[url=' + link() + '][img]' + src + '[/img][/url]';
+    return '<a href="' + link() + '" target="_blank" rel="noopener"><img src="' + src + '" width="' + wh[0] + '" height="' + wh[1] + '" alt="' + esc(ALT[bLang]) + '"></a>';
+  }
+  function card(size, social){
+    var t = T[lang], wh = size.split('x');
+    return '<div class="card"><div class="shot"><img src="' + img(size) + '" width="' + wh[0] + '" height="' + wh[1] + '" alt="' + esc(t.n[size]) + ' ' + size + '" loading="lazy"></div>' +
+      '<div class="meta"><b>' + t.n[size] + '</b><span>' + wh[0] + ' × ' + wh[1] + '</span></div>' +
+      '<div class="acts"><a class="btn" href="' + img(size) + '" download="degenland-' + bLang + '-' + size + '.png">' + t.dl + '</a>' +
+      (social ? '<button class="btn ghost" type="button" data-copy="link">' + t.link + '</button>'
+              : '<button class="btn ghost" type="button" data-copy="html" data-size="' + size + '">' + t.html + '</button><button class="btn ghost" type="button" data-copy="bb" data-size="' + size + '">' + t.bb + '</button>') +
+      '</div></div>';
+  }
+  function render(){
+    var t = T[lang]; document.documentElement.lang = lang; document.title = 'DegenLand · ' + t.h1;
+    $('h1').textContent = t.h1; $('lead').textContent = t.lead.replace('{p}', PCT); $('back').textContent = t.back;
+    $('back').href = 'index.html?lang=' + (lang === 'it' ? 'it' : lang);
+    $('nlT').textContent = t.nlT; $('nlP').textContent = t.nlP; $('nlB').textContent = t.nlB;
+    $('myLinkT').textContent = t.myLink; $('copyLink').textContent = t.copy;
+    $('gWeb').textContent = t.gWeb; $('gWebP').textContent = t.gWebP; $('gSoc').textContent = t.gSoc; $('gSocP').textContent = t.gSocP;
+    $('rT').textContent = t.rT; $('rL').innerHTML = t.r.map(function(x){ return '<li>' + x + '</li>'; }).join('');
+    $('langs').innerHTML = L.map(function(l){ return '<button type="button" data-l="' + l + '" aria-pressed="' + (l === bLang) + '">' + l.toUpperCase() + '</button>'; }).join('');
+    if(REF){ $('myLink').value = link(); $('web').innerHTML = WEB.map(function(s){ return card(s, false); }).join(''); $('soc').innerHTML = SOC.map(function(s){ return card(s, true); }).join(''); }
+  }
+  // il selettore cambia sia la lingua della pagina sia quella dei banner
+  $('langs').addEventListener('click', function(e){ var b = e.target.closest('[data-l]'); if(!b) return; bLang = lang = b.getAttribute('data-l'); try{ localStorage.setItem('degenland_lang', lang); }catch(x){} render(); });
+  document.addEventListener('click', function(e){ var b = e.target.closest('[data-copy]'); if(!b) return; var k = b.getAttribute('data-copy'); copy(k === 'link' ? link() : code(b.getAttribute('data-size'), k)); });
+  $('copyLink').onclick = function(){ copy(link()); };
+  render();
+  fetch('/api/state', { headers: { 'X-DL': '1' }, credentials: 'same-origin' })
+    .then(function(r){ return r.json().then(function(j){ return { s: r.status, j: j }; }); })
+    .then(function(x){
+      if(x.j && x.j.ok && x.j.referral && x.j.referral.code){ REF = x.j.referral.code; if(x.j.referral.pct != null) PCT = Math.round(x.j.referral.pct * (x.j.referral.pct <= 1 ? 100 : 1)); $('content').hidden = false; render(); }
+      else if(x.j && x.j.error === 'maintenance') location.reload();
+      else $('needLogin').hidden = false;
+    })
+    .catch(function(){ $('needLogin').hidden = false; });
+})();
+</script>
+</body>
+</html>

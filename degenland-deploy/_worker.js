@@ -1718,10 +1718,35 @@ async function handleApi(request, env, evt) {
     return json({ ok: false, error: 'internal', message: 'Errore interno' }, 500);
   }
 }
+
+/* ============================ MANUTENZIONE ============================
+   Variabile MAINTENANCE=1 (Cloudflare, poi nuovo deploy): sito e gioco mostrano la pagina di
+   manutenzione (HTTP 503) e le API di gioco rispondono 'maintenance'. Restano attivi la console
+   (/console/ e /api/admin/*) e i file in /assets/. Con MAINTENANCE_KEY impostata, chi apre
+   /?maint=CHIAVE riceve un cookie e vede il sito normale per provarlo (/?maint=off lo toglie). */
+async function maintenanceGate(request, env, url) {
+  if (env.MAINTENANCE !== '1') return null;
+  const p = url.pathname, key = env.MAINTENANCE_KEY || '';
+  if (p.startsWith('/assets/') || p.startsWith('/console') || p.startsWith('/api/admin/') || p === '/maintenance' || p === '/maintenance.html' || p === '/robots.txt' || p === '/favicon.ico') return null;
+  const q = url.searchParams.get('maint');
+  if (q != null) {
+    const clean = new URL(url); clean.searchParams.delete('maint');
+    const ok = key && timingSafeEq(q, key);
+    const cookie = ok ? cookieStr('dl_mk', key, { maxAge: 12 * 3600 }) : cookieStr('dl_mk', '', { maxAge: 0 });
+    return new Response(null, { status: 302, headers: { Location: clean.pathname + clean.search, 'Set-Cookie': cookie, 'Cache-Control': 'no-store' } });
+  }
+  if (key && timingSafeEq(parseCookies(request).dl_mk || '', key)) return null;
+  const head = { 'Cache-Control': 'no-store', 'Retry-After': '1800' };
+  if (p.startsWith('/api/')) return new Response(JSON.stringify({ ok: false, error: 'maintenance', message: 'Manutenzione in corso' }), { status: 503, headers: { ...head, 'Content-Type': 'application/json; charset=utf-8' } });
+  if (!env.ASSETS) return new Response('Maintenance', { status: 503, headers: head });
+  const page = await env.ASSETS.fetch(new Request(new URL('/maintenance', url).toString(), { headers: { Accept: 'text/html' } }));
+  return new Response(page.body, { status: 503, headers: { ...head, 'Content-Type': 'text/html; charset=utf-8' } });
+}
 export default {
   async fetch(request, env, evt) {
     const url = new URL(request.url);
     if (env.CANONICAL_HOST && url.hostname.endsWith('.pages.dev') && url.hostname !== env.CANONICAL_HOST) { url.hostname = env.CANONICAL_HOST; url.port = ''; return Response.redirect(url.toString(), 301); }   // un solo indirizzo pubblico
+    const m = await maintenanceGate(request, env, url); if (m) return m;
     if (url.pathname.startsWith('/api/')) return handleApi(request, env, evt);
     if (env.ASSETS) return env.ASSETS.fetch(request);
     return new Response('Not found', { status: 404 });

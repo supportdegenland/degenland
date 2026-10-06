@@ -413,6 +413,7 @@ nav.tabs button .ico{width:28px;height:28px}
       <div class="kv"><span>Guadagnato in totale</span><b id="refEarn">–</b></div>
       <div class="kv"><span>Ultimi 30 giorni</span><b id="refEarn30">–</b></div>
       <button class="btn ghost" id="btnRefList" style="width:100%;margin-top:8px">Vedi i tuoi affiliati</button>
+      <a class="btn cyan" id="btnPromo" href="promo.html" style="display:block;width:100%;margin-top:8px;text-align:center;text-decoration:none">Materiale promozionale</a>
     </div>
     
   </main>
@@ -515,6 +516,7 @@ const I18N_EXACT = {
 "Guadagnato in totale":["Earned in total", "Ganado en total", "Заработано всего"],
 "Ultimi 30 giorni":["Last 30 days", "Últimos 30 días", "Последние 30 дней"],
 "Vedi i tuoi affiliati":["See your affiliates", "Ver tus afiliados", "Посмотреть ваших партнёров"],
+"Materiale promozionale":["Promo materials", "Material promocional", "Промо-материалы"],
 "I tuoi affiliati":["Your affiliates", "Tus afiliados", "Ваши партнёры"],
 "Nessun affiliato per ora: condividi il tuo link!":["No affiliates yet: share your link!", "Aún no tienes afiliados: ¡comparte tu enlace!", "Партнёров пока нет: поделитесь своей ссылкой!"],
 "Attivo":["Active", "Activo", "Активен"],
@@ -878,7 +880,7 @@ const ICONS = {"home": "<svg viewBox=\"0 0 16 16\" aria-hidden=\"true\" focusabl
   }
   new MutationObserver(ms=>{ for(const m of ms){ if(m.type==='characterData') iconize(m.target); else m.addedNodes.forEach(walk); } })
     .observe(document.documentElement,{subtree:true,childList:true,characterData:true});
-  const run=()=>{ walk(document.body); document.querySelectorAll('[data-sitepage]').forEach(a=>{ a.href=siteHref(a.dataset.sitepage); }); };
+  const run=()=>{ walk(document.body); document.querySelectorAll('[data-sitepage]').forEach(a=>{ a.href=siteHref(a.dataset.sitepage); }); const pr=document.getElementById('btnPromo'); if(pr) pr.href='promo.html?lang='+LANG; };
   if(document.readyState!=='loading') run(); else document.addEventListener('DOMContentLoaded',run);
 })();
 
@@ -1020,6 +1022,7 @@ async function api(method, path, body){
   let res; try{ res = await fetch(path,{ method, headers:{'Content-Type':'application/json','X-DL':'1'}, credentials:'same-origin', body: method==='GET'?undefined:JSON.stringify(body||{}) }); }catch(e){ throw mkErr('network'); }
   let j={}; try{ j=await res.json(); }catch(e){}
   if(res.status===401 && !path.startsWith('/api/auth')){ S=null; loginSheet(); throw mkErr('unauthorized'); }
+  if(j.error==='maintenance'){ location.reload(); throw mkErr('maintenance'); }
   if(!j.ok) throw mkErr(j.error||'error');
   return j;
 }

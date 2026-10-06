@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#07040F">
+<meta name="robots" content="noindex">
+<title>DegenLand · Maintenance</title>
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Chakra+Petch:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="/assets/config.js"></script>
+<style>
+:root{--ink:#05030F;--text:#F4F2FF;--muted:#B9B2DD;--cyan:#00F0FF;--pink:#FF2E88;--sun:#F9F002;--panel:#1C1440}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{min-height:100vh;display:flex;flex-direction:column;background:#07040F;background-image:linear-gradient(180deg,#07040F 0%,#12082E 55%,#3E1060 100%);color:var(--text);font-family:"Chakra Petch",system-ui,-apple-system,"Segoe UI",sans-serif;text-align:center}
+.tape{height:18px;background:repeating-linear-gradient(-45deg,var(--sun) 0 14px,var(--ink) 14px 28px);border-bottom:2px solid var(--ink)}
+main{flex:1;display:flex;align-items:center;justify-content:center;padding:32px 16px calc(32px + env(safe-area-inset-bottom,0px))}
+.in{max-width:520px;width:100%}
+.art{width:132px;height:132px;margin:0 auto 18px;position:relative;image-rendering:pixelated}
+.art svg{width:100%;height:100%;display:block;filter:saturate(.55) brightness(.85)}
+.art i{position:absolute;right:6px;top:8px;width:14px;height:14px;background:var(--sun);box-shadow:0 0 0 2px var(--ink);animation:blink 1.2s steps(2,end) infinite}
+@keyframes blink{50%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.art i{animation:none}}
+h1{font-family:"Press Start 2P",ui-monospace,monospace;font-weight:400;font-size:clamp(22px,6.5vw,36px);line-height:1.2;margin:0;color:var(--pink);text-shadow:3px 0 0 var(--cyan),5px 5px 0 var(--ink)}
+.t{font-family:"Press Start 2P",ui-monospace,monospace;font-size:13px;line-height:1.6;color:var(--sun);margin:22px 0 14px}
+.p{font-size:17px;line-height:1.55;color:#D9D4F5;margin:0 auto 10px;max-width:42ch}
+.r{font-size:14px;color:var(--muted);margin:0 0 26px}
+.j{font-size:14px;font-weight:600;color:var(--muted);margin:0 0 10px}
+.soc{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin:0 0 26px}
+.soc a{display:inline-flex;align-items:center;gap:10px;padding:8px 16px 8px 8px;background:var(--panel);color:var(--text);text-decoration:none;font-weight:700;font-size:16px;border:2px solid var(--ink);box-shadow:0 4px 0 var(--ink)}
+.soc a:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.soc a[hidden]{display:none}
+.soc svg{width:28px;height:28px;display:block}
+.lang{display:flex;gap:6px;justify-content:center}
+.lang button{font:600 13px "Chakra Petch",system-ui,sans-serif;background:transparent;color:var(--muted);border:2px solid #3A2D7A;padding:5px 10px;cursor:pointer}
+.lang button[aria-pressed="true"]{background:var(--cyan);color:var(--ink);border-color:var(--cyan)}
+a:focus-visible,button:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="tape" aria-hidden="true"></div>
+<main>
+  <div class="in">
+    <div class="art" aria-hidden="true"><i></i></div>
+    <h1>DegenLand</h1>
+    <p class="t" id="t">Maintenance</p>
+    <p class="p" id="p"></p>
+    <p class="r" id="r"></p>
+    <p class="j" id="j"></p>
+    <div class="soc">
+      <a data-social="x" href="#" target="_blank" rel="noopener" hidden><svg viewBox="0 0 16 16" aria-hidden="true" shape-rendering="crispEdges"><rect width="16" height="16" fill="#000"/><g fill="#fff"><rect x="2" y="3" width="2" height="1"/><rect x="11" y="3" width="2" height="1"/><rect x="3" y="4" width="2" height="1"/><rect x="10" y="4" width="2" height="1"/><rect x="4" y="5" width="2" height="1"/><rect x="9" y="5" width="2" height="1"/><rect x="5" y="6" width="2" height="1"/><rect x="8" y="6" width="2" height="1"/><rect x="6" y="7" width="3" height="2"/><rect x="5" y="9" width="2" height="1"/><rect x="8" y="9" width="2" height="1"/><rect x="4" y="10" width="2" height="1"/><rect x="9" y="10" width="2" height="1"/><rect x="3" y="11" width="2" height="1"/><rect x="10" y="11" width="2" height="1"/><rect x="2" y="12" width="2" height="1"/><rect x="11" y="12" width="2" height="1"/></g></svg><span>X</span></a>
+      <a data-social="telegram" href="#" target="_blank" rel="noopener" hidden><svg viewBox="0 0 16 16" aria-hidden="true" shape-rendering="crispEdges"><rect width="16" height="16" fill="#2AABEE"/><g fill="#fff"><rect x="12" y="3" width="2" height="1"/><rect x="9" y="4" width="5" height="1"/><rect x="6" y="5" width="8" height="1"/><rect x="3" y="6" width="10" height="1"/><rect x="2" y="7" width="6" height="1"/><rect x="9" y="7" width="4" height="1"/><rect x="4" y="8" width="3" height="1"/><rect x="8" y="8" width="5" height="1"/><rect x="6" y="9" width="1" height="1"/><rect x="8" y="9" width="4" height="1"/><rect x="6" y="10" width="6" height="1"/><rect x="7" y="11" width="1" height="1"/><rect x="9" y="11" width="3" height="1"/><rect x="9" y="12" width="2" height="1"/></g></svg><span>Telegram</span></a>
+      <a data-social="discord" href="#" target="_blank" rel="noopener" hidden><svg viewBox="0 0 16 16" aria-hidden="true" shape-rendering="crispEdges"><rect width="16" height="16" fill="#5865F2"/><g fill="#fff"><rect x="3" y="3" width="2" height="1"/><rect x="11" y="3" width="2" height="1"/><rect x="2" y="4" width="12" height="2"/><rect x="1" y="6" width="14" height="1"/><rect x="1" y="7" width="3" height="2"/><rect x="6" y="7" width="4" height="2"/><rect x="12" y="7" width="3" height="2"/><rect x="1" y="9" width="14" height="2"/><rect x="2" y="11" width="4" height="1"/><rect x="10" y="11" width="4" height="1"/><rect x="3" y="12" width="2" height="1"/><rect x="11" y="12" width="2" height="1"/></g></svg><span>Discord</span></a>
+    </div>
+    <div class="lang" role="group" aria-label="Language"></div>
+  </div>
+</main>
+<div class="tape" aria-hidden="true"></div>
+<script src="/assets/art.js"></script>
+<script>
+(function(){
+  var TX = {
+    en:{t:'Maintenance in progress', p:'We are upgrading the city. Your farm, miners and balances are safe and nothing is lost while we work.', r:'This page checks again by itself every minute.', j:'Updates on our channels'},
+    es:{t:'Mantenimiento en curso', p:'Estamos mejorando la ciudad. Tu granja, tus mineros y tus saldos están a salvo y no se pierde nada mientras trabajamos.', r:'Esta página vuelve a comprobarlo sola cada minuto.', j:'Novedades en nuestros canales'},
+    ru:{t:'Идут технические работы', p:'Мы улучшаем город. Твоя ферма, майнеры и балансы в безопасности, за время работ ничего не потеряется.', r:'Страница сама проверяет статус каждую минуту.', j:'Новости в наших каналах'},
+    it:{t:'Manutenzione in corso', p:'Stiamo migliorando la città. La tua farm, i miner e i saldi sono al sicuro e non si perde nulla mentre lavoriamo.', r:'Questa pagina ricontrolla da sola ogni minuto.', j:'Aggiornamenti sui nostri canali'}
+  };
+  var L = ['en','es','ru','it'], lang = 'en';
+  try{ var s = localStorage.getItem('degenland_lang'); if(L.indexOf(s) >= 0) lang = s; else { var n = (navigator.language||'en').slice(0,2).toLowerCase(); if(L.indexOf(n) >= 0) lang = n; } }catch(e){}
+  var m = location.pathname.match(/^\/(en|es|ru|it)\//); if(m) lang = m[1];
+  function $(id){ return document.getElementById(id); }
+  function render(){
+    var t = TX[lang]; document.documentElement.lang = lang; document.title = 'DegenLand · ' + t.t;
+    $('t').textContent = t.t; $('p').textContent = t.p; $('r').textContent = t.r; $('j').textContent = t.j;
+    document.querySelector('.lang').innerHTML = L.map(function(l){ return '<button type="button" data-l="'+l+'" aria-pressed="'+(l===lang)+'">'+l.toUpperCase()+'</button>'; }).join('');
+    document.querySelectorAll('.lang button').forEach(function(b){ b.onclick = function(){ lang = b.getAttribute('data-l'); try{ localStorage.setItem('degenland_lang', lang); }catch(e){} render(); }; });
+  }
+  render();
+  var S = (window.DEGENLAND && window.DEGENLAND.social) || {}, any = false;
+  document.querySelectorAll('[data-social]').forEach(function(a){ var u = S[a.getAttribute('data-social')]; if(u){ a.href = u; a.hidden = false; any = true; } });
+  if(!any) $('j').hidden = true;
+  try{ if(window.minerSVG) document.querySelector('.art').insertAdjacentHTML('afterbegin', window.minerSVG(2)); }catch(e){}
+  // quando la manutenzione finisce, la stessa pagina torna al sito
+  setInterval(function(){ fetch('/api/config', { cache: 'no-store' }).then(function(r){ if(r.ok) location.reload(); }).catch(function(){}); }, 60000);
+})();
+</script>
+</body>
+</html>
