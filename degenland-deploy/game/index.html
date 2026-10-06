@@ -292,6 +292,27 @@ nav.tabs button .ico{width:28px;height:28px}
   .item{grid-template-columns:118px 1fr}
 }
 @media (min-width:1500px){ .app{max-width:1500px} }
+/* ===== Desktop: rack a tendina e rinominabili, Rete sotto la casa ===== */
+@media (min-width:1024px){
+  #tab-casa > #tab-rete{margin-top:22px}
+  .rack-h.desk{gap:10px;margin-bottom:8px}
+  .rack.closed .rack-h.desk{margin-bottom:0}
+  .rk-tog{display:flex;align-items:center;gap:10px;min-width:0;flex:1;background:none;border:0;padding:4px 2px;color:inherit;font:inherit;cursor:pointer;text-align:left}
+  .rk-car{flex:none;width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid currentColor;transition:transform .15s}
+  .rack.closed .rk-car{transform:rotate(-90deg)}
+  .rk-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rk-mini{display:none;gap:4px;align-items:center}
+  .rack.closed .rk-mini{display:flex}
+  .rk-mini svg{width:26px;height:26px;display:block}
+  .rk-mini .br svg{filter:grayscale(1) brightness(.7)}
+  .rk-ed{flex:none;width:30px;height:30px;display:grid;place-items:center;background:var(--panel);color:var(--text);border:2px solid var(--ink);border-radius:8px;cursor:pointer;padding:0}
+  .rk-ed svg{width:16px;height:16px;display:block}
+  .rk-in{flex:1;min-width:0;font:inherit;font-weight:700;padding:5px 8px;border:2px solid var(--cyan);border-radius:8px;background:var(--panel);color:var(--text)}
+  .rk-tools{display:flex;justify-content:flex-end;gap:8px;margin:10px 0 -4px}
+  .rk-tools button{background:none;border:0;color:var(--muted);font:inherit;font-size:13px;font-weight:700;text-decoration:underline;cursor:pointer;padding:2px}
+  .rk-tog:focus-visible,.rk-ed:focus-visible,.rk-tools button:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
+}
+@media (prefers-reduced-motion:reduce){.rk-car{transition:none}}
 .dl-soc a{display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}.dl-soc a[hidden]{display:none}.dl-soc svg{width:22px;height:22px;display:block;border-radius:4px}
 </style>
 <script src="/assets/config.js"></script><script src="/assets/launch.js"></script>
@@ -517,6 +538,10 @@ const I18N_EXACT = {
 "Ultimi 30 giorni":["Last 30 days", "Últimos 30 días", "Последние 30 дней"],
 "Vedi i tuoi affiliati":["See your affiliates", "Ver tus afiliados", "Посмотреть ваших партнёров"],
 "Materiale promozionale":["Promo materials", "Material promocional", "Промо-материалы"],
+"Rinomina rack":["Rename rack", "Renombrar rack", "Переименовать стойку"],
+"Nome del rack":["Rack name", "Nombre del rack", "Название стойки"],
+"Comprimi tutti":["Collapse all", "Contraer todos", "Свернуть все"],
+"Espandi tutti":["Expand all", "Expandir todos", "Развернуть все"],
 "I tuoi affiliati":["Your affiliates", "Tus afiliados", "Ваши партнёры"],
 "Nessun affiliato per ora: condividi il tuo link!":["No affiliates yet: share your link!", "Aún no tienes afiliados: ¡comparte tu enlace!", "Партнёров пока нет: поделитесь своей ссылкой!"],
 "Attivo":["Active", "Activo", "Активен"],
@@ -1074,11 +1099,43 @@ function renderFarmBar(){
   const r=dailyRate()/LAM; $('farmRate').textContent = S.me.mode==='TOKEN' ? `~${fmtN(lamToTok(r*LAM))} token/giorno` : `~${fmtSol(r)} SOL/giorno`;
   $('farmPow').textContent = fmtN(activeMiners().reduce((a,m)=>a+M(m.model_id).power,0))+' GH/s';
 }
+/* Rack: su desktop si possono comprimere e rinominare. Nomi e stato restano in questo browser. */
+const DESK = matchMedia('(min-width:1024px)');
+const PEN = '<svg viewBox="0 0 16 16" aria-hidden="true" shape-rendering="crispEdges"><g fill="currentColor"><rect x="11" y="1" width="2" height="1"/><rect x="10" y="2" width="4" height="1"/><rect x="9" y="3" width="5" height="1"/><rect x="8" y="4" width="5" height="1"/><rect x="7" y="5" width="5" height="1"/><rect x="6" y="6" width="5" height="1"/><rect x="5" y="7" width="5" height="1"/><rect x="4" y="8" width="5" height="1"/><rect x="3" y="9" width="5" height="1"/><rect x="2" y="10" width="5" height="1"/><rect x="2" y="11" width="4" height="1"/><rect x="1" y="12" width="4" height="1"/><rect x="1" y="13" width="3" height="1"/><rect x="1" y="14" width="2" height="1"/></g></svg>';
+const rkKey = () => 'dl_racks_'+(S&&S.me?S.me.id:'x');
+function rkPrefs(){ try{ const v=JSON.parse(localStorage.getItem(rkKey())||'{}'); return { names:v.names||{}, closed:v.closed||{} }; }catch(e){ return { names:{}, closed:{} }; } }
+function rkSave(p){ try{ localStorage.setItem(rkKey(), JSON.stringify(p)); }catch(e){} }
+const rkName = (p,n) => (p.names[n] && p.names[n].trim()) || `Rack ${n}`;
+let rkEditing = false;
+function rkRename(el, n){
+  const p=rkPrefs(), tog=el.querySelector('.rk-tog'); rkEditing=true;
+  const inp=document.createElement('input'); inp.className='rk-in'; inp.maxLength=24; inp.value=rkName(p,n); inp.setAttribute('aria-label','Nome del rack');
+  tog.replaceWith(inp); inp.focus(); inp.select();
+  let done=false; const end=save=>{ if(done) return; done=true; rkEditing=false;
+    if(save){ const q=rkPrefs(), v=inp.value.trim().slice(0,24); if(v && v!==`Rack ${n}`) q.names[n]=v; else delete q.names[n]; rkSave(q); }
+    renderCasa(); const b=document.querySelector(`.rack[data-n="${n}"] .rk-ed`); if(b) b.focus(); };
+  inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); end(true); } else if(e.key==='Escape'){ e.preventDefault(); end(false); } });
+  inp.addEventListener('blur',()=>end(true));
+}
+function rkSetAll(closed){ const p=rkPrefs(); p.closed={}; if(closed) for(let i=1;i<=S.me.racks;i++) p.closed[i]=true; rkSave(p); renderCasa(); }
 function renderCasa(){
-  if(!S) return; const box=$('racks'); box.innerHTML='';
+  if(!S) return;
+  if(!rkEditing){
+  const box=$('racks'); box.innerHTML=''; const desk=DESK.matches, p=rkPrefs();
+  if(desk && S.me.racks>1){ const t=document.createElement('div'); t.className='rk-tools';
+    t.innerHTML='<button type="button" data-all="0">Espandi tutti</button><button type="button" data-all="1">Comprimi tutti</button>';
+    t.querySelectorAll('button').forEach(b=>b.onclick=()=>rkSetAll(b.dataset.all==='1')); box.appendChild(t); }
   racksGrid().forEach((rack,ri)=>{
-    const el=document.createElement('div'); el.className='rack';
-    el.innerHTML=`<div class="rack-h"><span>Rack ${ri+1}</span><span class="small muted">${rack.filter(Boolean).length}/4</span></div><div class="slots"></div>`;
+    const n=ri+1, closed=desk && !!p.closed[n], name=esc(rkName(p,n));
+    const el=document.createElement('div'); el.className='rack'+(closed?' closed':''); el.dataset.n=n;
+    if(desk){
+      const mini=rack.filter(Boolean).map(m=>`<span class="${m.broken?'br':''}">${sprite(m)}</span>`).join('');
+      el.innerHTML=`<div class="rack-h desk"><button type="button" class="rk-tog" aria-expanded="${!closed}" aria-controls="rk${n}"><span class="rk-car" aria-hidden="true"></span><span class="rk-name">${name}</span></button><span class="rk-mini" aria-hidden="true">${mini}</span><span class="small muted">${rack.filter(Boolean).length}/4</span><button type="button" class="rk-ed" aria-label="Rinomina rack" title="Rinomina rack">${PEN}</button></div><div class="slots" id="rk${n}"${closed?' hidden':''}></div>`;
+      el.querySelector('.rk-tog').onclick=()=>{ const q=rkPrefs(); if(q.closed[n]) delete q.closed[n]; else q.closed[n]=true; rkSave(q); renderCasa(); const b=document.querySelector(`.rack[data-n="${n}"] .rk-tog`); if(b) b.focus(); };
+      el.querySelector('.rk-ed').onclick=()=>rkRename(el,n);
+    } else {
+      el.innerHTML=`<div class="rack-h"><span>${name}</span><span class="small muted">${rack.filter(Boolean).length}/4</span></div><div class="slots"></div>`;
+    }
     const slots=el.querySelector('.slots');
     rack.forEach((m,si)=>{
       const b=document.createElement('button');
@@ -1087,6 +1144,7 @@ function renderCasa(){
       slots.appendChild(b);
     }); box.appendChild(el);
   });
+  }
   $('invCount').textContent=inStorage().length;
   const n=S.me.racks, next=S.shop.next_rack_milli;
   $('btnRack').textContent = next==null ? 'Numero massimo di rack raggiunto' : `Aggiungi un rack (${fmtN(next/1000)} ⚡)`; $('btnRack').disabled = next==null;
@@ -1390,6 +1448,12 @@ function renderAll(){ renderTop(); renderCasa(); renderShop(); renderWallet(); r
 setInterval(()=>{ if(!S) return; renderTop(); renderFarmBar(); if(!$('tab-wallet').hidden) renderWallet(); if(!$('tab-task').hidden) renderTasks(); },1000);
 setInterval(()=>{ if(S && !busy && document.visibilityState==='visible') refresh().catch(()=>{}); },30000);
 document.addEventListener('visibilitychange',()=>{ if(S && document.visibilityState==='visible') refresh().catch(()=>{}); });
+/* Desktop: le schede Rete (pool, classifica, info) vanno nella colonna di sinistra, sotto i rack */
+(function(){
+  const rete=$('tab-rete'), casa=$('tab-casa'), mark=document.createComment('rete'); rete.parentNode.insertBefore(mark,rete);
+  const place=()=>{ if(DESK.matches){ if(rete.parentNode!==casa) casa.appendChild(rete); } else if(rete.parentNode===casa) mark.parentNode.insertBefore(rete,mark); };
+  place(); DESK.addEventListener('change',()=>{ place(); if(S) renderCasa(); });
+})();
 (async function init(){
   try{ const r=new URLSearchParams(location.search).get('ref'); if(r) localStorage.setItem('dl_ref',r.slice(0,16)); }catch(e){}
   try{ CFG=await api('GET','/api/config'); }catch(e){}
