@@ -12,7 +12,7 @@ window.DEGENLAND = {
   previewKey: 'dl-7e82430e',
   launchAt: '2026-10-09T18:00:00+02:00',
   social: {
-    x: '',
+    x: 'https://x.com/DegenLandX',
     telegram: 'https://t.me/DegenLandchannel',
     discord: 'https://discord.gg/edEeZKzge'
   }

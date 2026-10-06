@@ -114,3 +114,13 @@ details.fq[open] summary::after{content:"–"}
 .social svg{width:32px;height:32px;display:block}
 .social.big a{padding:6px 14px 6px 6px;font-weight:700}
 .social.big svg{width:28px;height:28px}
+
+/* Advertise Center */
+.advc{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:24px;align-items:start}
+.advc p{margin:0 0 14px}
+.advt{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;background:var(--panel)}
+.advt th,.advt td{padding:9px 12px;text-align:right;border-bottom:1px solid var(--edge)}
+.advt th:first-child,.advt td:first-child{text-align:left}
+.advt thead th{font-size:14px;color:var(--muted);font-weight:600}
+.advt td b{font-weight:700}
+@media (max-width:760px){.advc{grid-template-columns:1fr}}

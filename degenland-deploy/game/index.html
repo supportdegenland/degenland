@@ -124,6 +124,12 @@ nav.tabs button[aria-current="page"]{background:var(--sun);color:var(--ink)}
 .overlay.show{display:flex}
 .sheet{width:100%;max-width:520px;max-height:80%;overflow:auto;background:var(--panel);border:3px solid var(--ink);border-radius:24px;box-shadow:0 6px 0 var(--ink);padding:16px;margin-bottom:env(safe-area-inset-bottom,0px)}
 .adbox{text-align:center}
+.adframe{position:relative;height:min(46vh,340px);margin:10px 0;border:2px solid var(--ink);border-radius:12px;overflow:hidden;background:#fff}
+.adframe iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.adhost{font-size:13px;color:var(--muted);margin:2px 0 10px;word-break:break-all}
+.adbox .advisit{display:inline-block;text-decoration:none;margin:0 0 8px}
+.adbox .adown{font-size:12px;color:var(--muted);margin-top:8px}
+.adbox .adown a{color:inherit}
 .adart{height:140px;border:3px solid var(--ink);border-radius:16px;margin:10px 0;display:grid;place-items:center;font-size:60px;
   background:linear-gradient(135deg,var(--pink),var(--sun))}
 .pick{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
@@ -738,6 +744,10 @@ const I18N_EXACT = {
 'Email da collegare':['Email to link','Email para vincular','Email для привязки'],
 'Pubblicità simulata':['Simulated ad','Anuncio simulado','Симулированная реклама'],
 'Il tuo annuncio qui':['Your ad here','Tu anuncio aquí','Здесь ваша реклама'],
+'Sponsor':['Sponsor','Patrocinado','Спонсор'],
+'Visita il sito':['Visit the site','Visitar el sitio','Перейти на сайт'],
+'Pubblicizza qui il tuo progetto':['Advertise your project here','Anuncia aquí tu proyecto','Разместите здесь свою рекламу'],
+'Mostra il tuo progetto a tutti i giocatori di DegenLand.':['Show your project to every DegenLand player.','Muestra tu proyecto a todos los jugadores de DegenLand.','Покажите свой проект всем игрокам DegenLand.'],
 'Magazzino vuoto':['Storage empty','Almacén vacío','Склад пуст'],
 'Compra un miner nel negozio, poi installalo qui.':['Buy a miner in the shop, then install it here.','Compra un minero en la tienda y luego instálalo aquí.','Купите майнер в магазине, затем установите его здесь.'],
 'Vai al negozio':['Go to shop','Ir a la tienda','В магазин'],
@@ -1234,8 +1244,15 @@ $('mNrg').onclick=()=>act(async()=>{ await api('POST','/api/mode',{mode:'TOKEN'}
 function adFlow(purpose, art, doneMsg, after){
   act(async()=>{
     const b=await api('POST','/api/ad/begin',{purpose}); let s=Math.max(1,Math.ceil(b.min_seconds))+1;
-    openSheet(`<div class="adbox"><p class="small muted">Pubblicità simulata</p><div class="adart">${art}</div><h3>Il tuo annuncio qui</h3><p class="muted" id="adc">${purpose==='farm'?`La farm si avvia tra ${s} s`:`Energia ricaricata tra ${s} s`}</p></div>`,true);
-    await new Promise(res=>{ const t=setInterval(()=>{ s--; if(s>0){ const c=$('adc'); if(c) c.textContent=purpose==='farm'?`La farm si avvia tra ${s} s`:`Energia ricaricata tra ${s} s`; return; } clearInterval(t); res(); },1000); });
+    const msg=()=>purpose==='farm'?`La farm si avvia tra ${s} s`:`Energia ricaricata tra ${s} s`;
+    const ad=b.ad; let host=''; try{ host=ad?new URL(ad.url).hostname.replace(/^www\./,''):''; }catch(e){}
+    const own=`<p class="adown"><a href="/advertise.html?lang=${LANG}" target="_blank" rel="noopener">Pubblicizza qui il tuo progetto</a></p>`;
+    const body = ad
+      ? `<p class="small muted">Sponsor</p>${ad.frame?`<div class="adframe"><iframe src="${esc(ad.url)}" title="${esc(ad.title)}" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>`:`<div class="adart">${art}</div>`}<h3>${esc(ad.title)}</h3>${ad.descr?`<p class="muted">${esc(ad.descr)}</p>`:''}<p class="adhost">${esc(host)}</p><a class="btn cyan advisit" id="adVisit" href="${esc(ad.url)}" target="_blank" rel="noopener sponsored">Visita il sito</a><p class="muted" id="adc">${msg()}</p>${own}`
+      : `<p class="small muted">Sponsor</p><div class="adart">${art}</div><h3>Il tuo annuncio qui</h3><p class="muted">Mostra il tuo progetto a tutti i giocatori di DegenLand.</p><p class="muted" id="adc">${msg()}</p>${own}`;
+    openSheet(`<div class="adbox">${body}</div>`,true);
+    const v=$('adVisit'); if(v) v.addEventListener('click',()=>{ api('POST','/api/ad/click',{token:b.token}).catch(()=>{}); },{once:true});
+    await new Promise(res=>{ const t=setInterval(()=>{ s--; if(s>0){ const c=$('adc'); if(c) c.textContent=msg(); return; } clearInterval(t); res(); },1000); });
     try{ await api('POST', purpose==='farm'?'/api/farm/start':'/api/energy/recharge', {token:b.token}); } finally { closeSheet(true); }
     await refresh(); toast(doneMsg); if(after) after();
   });

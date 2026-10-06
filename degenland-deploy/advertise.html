@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#07040F">
+<title>Advertise Center · DegenLand</title>
+<meta name="description" content="Promote your platform inside DegenLand: your site in the ads players watch, from 1,000 views. Pay in SOL or with game tokens.">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="canonical" href="https://degenland.site/advertise.html">
+<meta property="og:type" content="website"><meta property="og:site_name" content="DegenLand"><meta property="og:title" content="Advertise Center · DegenLand"><meta property="og:description" content="Promote your platform inside DegenLand, from 1,000 views."><meta property="og:url" content="https://degenland.site/advertise.html"><meta property="og:image" content="https://degenland.site/assets/og.png">
+<meta name="twitter:site" content="@DegenLandX"><meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Chakra+Petch:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<script src="/assets/config.js"></script><script src="/assets/launch.js"></script>
+<style>
+.ac-lang{display:flex;gap:6px}
+.ac-lang button{font:600 13px "Chakra Petch",system-ui,sans-serif;background:transparent;color:var(--text);border:2px solid var(--edge);padding:5px 9px;cursor:pointer}
+.ac-lang button[aria-pressed="true"]{background:var(--cyan);color:var(--ink);border-color:var(--cyan)}
+.ac-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:24px;align-items:start;margin-top:8px}
+.ac-side{position:sticky;top:84px;display:grid;gap:16px}
+.card h2{font-size:20px;margin:0 0 12px}
+.fld{display:block;margin:0 0 16px}
+.fld > span{display:block;font-weight:700;margin-bottom:6px}
+.fld small{display:block;color:var(--muted);font-size:13px;margin-top:5px}
+.fld input[type=text],.fld input[type=url],.fld input:not([type]){width:100%;font:500 16px "Chakra Petch",system-ui,sans-serif;padding:10px 12px;background:var(--bg1);color:var(--text);border:2px solid var(--edge)}
+.fld input:focus-visible{outline:3px solid var(--cyan);outline-offset:1px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips label{position:relative}
+.chips input{position:absolute;opacity:0;width:1px;height:1px}
+.chips span{display:inline-block;min-width:64px;text-align:center;font-weight:700;padding:8px 14px;border:2px solid var(--edge);background:var(--panel);cursor:pointer}
+.chips input:checked + span{background:var(--sun);color:var(--ink);border-color:var(--ink);box-shadow:0 3px 0 var(--ink)}
+.chips input:focus-visible + span{outline:3px solid var(--cyan);outline-offset:2px}
+fieldset{border:0;margin:0 0 16px;padding:0}
+legend{font-weight:700;margin-bottom:6px;padding:0}
+.tot{display:flex;justify-content:space-between;gap:12px;align-items:baseline;border-top:2px solid var(--edge);padding-top:12px;margin-top:4px}
+.tot b{font-size:24px;font-variant-numeric:tabular-nums}
+.tot span{color:var(--muted);font-size:14px;text-align:right}
+.chk{display:flex;gap:10px;align-items:flex-start;margin:14px 0}
+.chk input{margin-top:4px;width:18px;height:18px;flex:none}
+.err{color:#ff5a7a;font-weight:700;min-height:1.2em;margin:8px 0 0}
+.who{padding:10px 12px;border:2px dashed var(--edge);margin:0 0 16px}
+/* anteprima: stessa forma dell'annuncio nel gioco */
+.pv{background:var(--panel2);border:2px solid var(--ink);box-shadow:0 4px 0 var(--ink);padding:18px;text-align:center}
+.pv .lab{font-size:13px;color:var(--muted);margin:0 0 10px}
+.pv .art{height:96px;display:grid;place-items:center;background:linear-gradient(135deg,var(--pink),var(--cyan));border:2px solid var(--ink);margin-bottom:12px;font-family:"Press Start 2P",monospace;font-size:22px;color:var(--ink)}
+.pv h3{margin:0 0 4px;font-size:18px;word-break:break-word}
+.pv p{margin:0 0 6px;color:var(--muted);word-break:break-word}
+.pv .host{font-size:13px}
+.pv .go{display:inline-block;margin-top:8px;background:var(--cyan);color:var(--ink);font-weight:700;padding:8px 14px;border:2px solid var(--ink)}
+.pv .cd{font-size:14px;color:var(--muted);margin-top:10px}
+.advt{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.advt th,.advt td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--edge)}
+.advt th:first-child,.advt td:first-child{text-align:left}
+.advt thead th{font-size:13px;color:var(--muted);font-weight:600}
+.pay{display:grid;gap:12px}
+.pay .row2{display:flex;gap:8px}
+.pay input{flex:1;min-width:0;font:600 15px "Chakra Petch",system-ui,sans-serif;padding:10px 12px;background:var(--bg1);color:var(--text);border:2px solid var(--edge)}
+.big{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums}
+.bar{height:14px;background:var(--bg1);border:2px solid var(--ink)}
+.bar i{display:block;height:100%;background:var(--mint)}
+.st{display:inline-block;font-weight:700;padding:3px 10px;border:2px solid var(--ink);background:var(--sun);color:var(--ink)}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--mint);color:var(--ink);font-weight:700;padding:10px 16px;border:2px solid var(--ink);box-shadow:0 4px 0 var(--ink);opacity:0;pointer-events:none;transition:opacity .15s}
+.toast.show{opacity:1}
+@media (max-width:900px){.ac-grid{grid-template-columns:1fr}.ac-side{position:static}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="logo" id="hHome" href="en/index.html">DegenLand</a>
+  <nav class="links" aria-label="Home"><a id="nHome" href="en/index.html">Home</a><a id="nFaq" href="en/faq.html">FAQ</a><a id="nTerms" href="en/terms.html">Terms</a></nav>
+  <div class="ac-lang" id="langs" role="group" aria-label="Language"></div>
+  <a class="btn" id="hPlay" href="game/index.html">Play</a>
+</div></header>
+<main>
+<div class="wrap page">
+  <h1>Advertise Center</h1>
+  <p class="lead" id="lead"></p>
+
+  <!-- stato di una campagna (link con ?c=ID&k=CHIAVE) -->
+  <section id="statusView" hidden></section>
+
+  <div id="mainView">
+    <section class="band" style="padding:6px 0 18px"><h2 class="sec" id="howT" style="margin-top:0"></h2><div class="steps" id="steps"></div></section>
+
+    <div class="ac-grid">
+      <div>
+        <form class="card" id="form" novalidate>
+          <h2 id="fT"></h2>
+          <label class="fld"><span id="lTitle"></span><input id="title" maxlength="40" autocomplete="off" required><small id="hTitle"></small></label>
+          <label class="fld"><span id="lDescr"></span><input id="descr" maxlength="90" autocomplete="off"><small id="hDescr"></small></label>
+          <label class="fld"><span id="lUrl"></span><input id="url" type="url" inputmode="url" placeholder="https://" autocomplete="url" required></label>
+          <fieldset><legend id="lViews"></legend><div class="chips" id="views"></div></fieldset>
+          <fieldset><legend id="lSec"></legend><div class="chips" id="secs"></div><small id="hSec" style="display:block;color:var(--muted);font-size:13px;margin-top:6px"></small></fieldset>
+          <fieldset><legend id="lPay"></legend><div class="chips" id="method"></div></fieldset>
+          <div id="solFields">
+            <label class="fld"><span id="lContact"></span><input id="contact" maxlength="120" autocomplete="email"><small id="hContact"></small></label>
+            <label class="fld"><span id="lWallet"></span><input id="wallet" maxlength="64" autocomplete="off" spellcheck="false"><small id="hWallet"></small></label>
+          </div>
+          <div id="tokFields" hidden><div class="who" id="who"></div>
+            <label class="fld"><span id="lContact2"></span><input id="contact2" maxlength="120" autocomplete="email"></label>
+          </div>
+          <div class="tot"><b id="total">–</b><span id="totalAlt"></span></div>
+          <div id="ts" style="margin-top:14px"></div>
+          <label class="chk"><input type="checkbox" id="agree"><span id="lAgree"></span></label>
+          <button class="btn big" type="submit" id="send" style="width:100%"></button>
+          <p class="err" id="err" role="alert"></p>
+        </form>
+        <section class="card" id="done" hidden></section>
+      </div>
+      <aside class="ac-side">
+        <div><p style="margin:0 0 8px;font-weight:700" id="pvT"></p>
+          <div class="pv" aria-live="polite"><p class="lab" id="pvLab">Sponsor</p><div class="art" id="pvArt">AD</div><h3 id="pvTitle"></h3><p id="pvDescr"></p><p class="host" id="pvHost"></p><span class="go" id="pvGo"></span><p class="cd" id="pvCd"></p></div>
+        </div>
+        <div class="card"><h2 id="priceT"></h2><table class="advt" id="prices"></table><p class="disc" id="priceNote" style="margin:12px 0 0"></p></div>
+      </aside>
+    </div>
+  </div>
+</div>
+</main>
+<footer><div class="wrap"><div class="row"><a class="logo" id="fHome" href="en/index.html" style="font-size:12px;margin-right:0">DegenLand</a><a id="fTerms" href="en/terms.html#t18">Terms</a></div>
+  <div class="social"><a class="soc" data-social="x" href="#" target="_blank" rel="noopener" aria-label="X" hidden><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect width="16" height="16" fill="#000000"/><g fill="#fff"><rect x="2" y="3" width="2" height="1"/><rect x="11" y="3" width="2" height="1"/><rect x="3" y="4" width="2" height="1"/><rect x="10" y="4" width="2" height="1"/><rect x="4" y="5" width="2" height="1"/><rect x="9" y="5" width="2" height="1"/><rect x="5" y="6" width="2" height="1"/><rect x="8" y="6" width="2" height="1"/><rect x="6" y="7" width="3" height="1"/><rect x="6" y="8" width="3" height="1"/><rect x="5" y="9" width="2" height="1"/><rect x="8" y="9" width="2" height="1"/><rect x="4" y="10" width="2" height="1"/><rect x="9" y="10" width="2" height="1"/><rect x="3" y="11" width="2" height="1"/><rect x="10" y="11" width="2" height="1"/><rect x="2" y="12" width="2" height="1"/><rect x="11" y="12" width="2" height="1"/></g></svg></a><a class="soc" data-social="telegram" href="https://t.me/DegenLandchannel" target="_blank" rel="noopener" aria-label="Telegram"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect width="16" height="16" fill="#2AABEE"/><g fill="#fff"><rect x="12" y="3" width="2" height="1"/><rect x="9" y="4" width="5" height="1"/><rect x="6" y="5" width="8" height="1"/><rect x="3" y="6" width="10" height="1"/><rect x="2" y="7" width="6" height="1"/><rect x="9" y="7" width="4" height="1"/><rect x="4" y="8" width="3" height="1"/><rect x="8" y="8" width="5" height="1"/><rect x="6" y="9" width="1" height="1"/><rect x="8" y="9" width="4" height="1"/><rect x="6" y="10" width="6" height="1"/><rect x="7" y="11" width="1" height="1"/><rect x="9" y="11" width="3" height="1"/><rect x="9" y="12" width="2" height="1"/></g></svg></a><a class="soc" data-social="discord" href="https://discord.gg/edEeZKzge" target="_blank" rel="noopener" aria-label="Discord"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect width="16" height="16" fill="#5865F2"/><g fill="#fff"><rect x="3" y="3" width="2" height="1"/><rect x="11" y="3" width="2" height="1"/><rect x="2" y="4" width="12" height="1"/><rect x="2" y="5" width="12" height="1"/><rect x="1" y="6" width="14" height="1"/><rect x="1" y="7" width="3" height="1"/><rect x="6" y="7" width="4" height="1"/><rect x="12" y="7" width="3" height="1"/><rect x="1" y="8" width="3" height="1"/><rect x="6" y="8" width="4" height="1"/><rect x="12" y="8" width="3" height="1"/><rect x="1" y="9" width="14" height="1"/><rect x="1" y="10" width="14" height="1"/><rect x="2" y="11" width="4" height="1"/><rect x="10" y="11" width="4" height="1"/><rect x="3" y="12" width="2" height="1"/><rect x="11" y="12" width="2" height="1"/></g></svg></a></div>
+</div></footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+(function(){
+  var T = {
+    en:{lead:'Put your platform in front of DegenLand players. Your site appears in the ads they watch to start their farm or recharge energy, in rotation with other campaigns.',
+      how:'How it works', steps:[['Fill in the form','Choose title, link, number of views and how long the ad stays on screen.'],['Pay','Send SOL to the address shown, or pay with your game tokens if you play DegenLand.'],['Review and rotation','The team checks the request, usually within 24 hours, and the campaign enters the rotation until the views are delivered.']],
+      fT:'Create your campaign', lTitle:'Ad title', hTitle:'Up to 40 characters.', lDescr:'Short description (optional)', hDescr:'Up to 90 characters.', lUrl:'Website address',
+      lViews:'Views', lSec:'Time on screen', hSec:'A view counts only when the player watches the ad until the end.', lPay:'Payment',
+      sol:'SOL', tok:'Game tokens', lContact:'Contact (email or Telegram)', hContact:'We write to you here if something needs checking.', lWallet:'Wallet you will pay from (optional)', hWallet:'Helps us match your payment faster.', lContact2:'Contact (optional)',
+      whoIn:'Paying as {n}. Balance: {b} tokens.', whoOut:'To pay with game tokens, sign in to the game first.', login:'Sign in to the game',
+      lAgree:'I accept the <a href="{t}" target="_blank" rel="noopener">Advertise Center rules</a>: my site contains nothing illegal, misleading, for adults or harmful.', send:'Send request',
+      approx:'≈ {s} SOL', approxT:'{t} tokens', pvT:'Preview', pvVisit:'Visit the site', pvCd:'The farm starts in {s} s', pvEmpty:'Your title here',
+      priceT:'Price list', priceNote:'Prices in USD. Paid in SOL at the current rate or in game tokens (1 token = $0.01). Larger packs include a discount.', viewsH:'Views', sec:'s',
+      errs:{adv_title:'Write a title of at least 3 characters.',adv_url:'Enter a valid web address (https://…).',adv_wallet:'That Solana address is not valid.',adv_contact:'Enter an email or Telegram contact.',login_required:'Sign in to the game to pay with tokens.',insufficient_funds:'You do not have enough tokens.',adv_too_many:'You already have 3 requests waiting for review.',rate_limited:'Too many requests: try again later.',captcha_required:'Complete the anti-bot check.',captcha_failed:'Anti-bot check failed: try again.',deposits_unavailable:'SOL payments are not active yet: pay with tokens or try later.',agree:'Accept the rules to continue.',network:'Connection error: try again.',maintenance:'Maintenance in progress: try again later.',generic:'Something went wrong: try again.'},
+      dSolT:'Request #{id} received', dSolP:'Send exactly this amount on the Solana network. Any other amount will not be matched to your campaign.', addr:'To this address', copy:'Copy', copied:'Copied', openW:'Open in wallet',
+      dSolN:'When the payment arrives, the team approves the campaign, usually within 24 hours.', dTokT:'Request #{id} received', dTokP:'{t} tokens will be taken from your balance when the team approves the campaign, usually within 24 hours.',
+      track:'Follow your campaign', trackN:'Save this link: it is the only way to see the progress of your campaign.', another:'Create another campaign',
+      stT:'Your campaign', stLab:{in_attesa:'Waiting for review',attiva:'Running',in_pausa:'Paused',completata:'Completed',rifiutata:'Refused'}, stViews:'{d} of {t} views', stClicks:'Clicks on your link: {c}', stReason:'Reason: {r}', stPay:'Payment: send {s} SOL to {a}', stNotFound:'Campaign not found. Check the link.',
+      nav:['Home','FAQ','Terms'], play:'Play'},
+    es:{lead:'Pon tu plataforma delante de los jugadores de DegenLand. Tu sitio aparece en los anuncios que ven para encender su granja o recargar energía, en rotación con otras campañas.',
+      how:'Cómo funciona', steps:[['Rellena el formulario','Elige título, enlace, número de visualizaciones y cuánto tiempo se ve el anuncio.'],['Paga','Envía SOL a la dirección indicada, o paga con tus tokens del juego si juegas a DegenLand.'],['Revisión y rotación','El equipo revisa la solicitud, normalmente en 24 horas, y la campaña entra en rotación hasta entregar las visualizaciones.']],
+      fT:'Crea tu campaña', lTitle:'Título del anuncio', hTitle:'Hasta 40 caracteres.', lDescr:'Descripción breve (opcional)', hDescr:'Hasta 90 caracteres.', lUrl:'Dirección web',
+      lViews:'Visualizaciones', lSec:'Tiempo en pantalla', hSec:'Una visualización cuenta solo si el jugador ve el anuncio hasta el final.', lPay:'Pago',
+      sol:'SOL', tok:'Tokens del juego', lContact:'Contacto (email o Telegram)', hContact:'Te escribimos aquí si hay que comprobar algo.', lWallet:'Monedero desde el que pagarás (opcional)', hWallet:'Nos ayuda a encontrar tu pago más rápido.', lContact2:'Contacto (opcional)',
+      whoIn:'Pagas como {n}. Saldo: {b} tokens.', whoOut:'Para pagar con tokens del juego, inicia sesión en el juego primero.', login:'Iniciar sesión en el juego',
+      lAgree:'Acepto las <a href="{t}" target="_blank" rel="noopener">reglas del Advertise Center</a>: mi sitio no contiene nada ilegal, engañoso, para adultos o dañino.', send:'Enviar solicitud',
+      approx:'≈ {s} SOL', approxT:'{t} tokens', pvT:'Vista previa', pvVisit:'Visitar el sitio', pvCd:'La granja se enciende en {s} s', pvEmpty:'Tu título aquí',
+      priceT:'Tarifas', priceNote:'Precios en USD. Se pagan en SOL al cambio actual o en tokens del juego (1 token = 0,01 $). Los paquetes grandes incluyen descuento.', viewsH:'Visualizaciones', sec:'s',
+      errs:{adv_title:'Escribe un título de al menos 3 caracteres.',adv_url:'Introduce una dirección web válida (https://…).',adv_wallet:'Esa dirección de Solana no es válida.',adv_contact:'Introduce un email o un contacto de Telegram.',login_required:'Inicia sesión en el juego para pagar con tokens.',insufficient_funds:'No tienes tokens suficientes.',adv_too_many:'Ya tienes 3 solicitudes pendientes de revisión.',rate_limited:'Demasiadas solicitudes: inténtalo más tarde.',captcha_required:'Completa la verificación anti-bot.',captcha_failed:'Verificación anti-bot fallida: inténtalo de nuevo.',deposits_unavailable:'Los pagos en SOL aún no están activos: paga con tokens o inténtalo más tarde.',agree:'Acepta las reglas para continuar.',network:'Error de conexión: inténtalo de nuevo.',maintenance:'Mantenimiento en curso: inténtalo más tarde.',generic:'Algo ha fallado: inténtalo de nuevo.'},
+      dSolT:'Solicitud n.º {id} recibida', dSolP:'Envía exactamente este importe en la red Solana. Cualquier otro importe no se asociará a tu campaña.', addr:'A esta dirección', copy:'Copiar', copied:'Copiado', openW:'Abrir en el monedero',
+      dSolN:'Cuando llegue el pago, el equipo aprobará la campaña, normalmente en 24 horas.', dTokT:'Solicitud n.º {id} recibida', dTokP:'Se descontarán {t} tokens de tu saldo cuando el equipo apruebe la campaña, normalmente en 24 horas.',
+      track:'Sigue tu campaña', trackN:'Guarda este enlace: es la única forma de ver el progreso de tu campaña.', another:'Crear otra campaña',
+      stT:'Tu campaña', stLab:{in_attesa:'Pendiente de revisión',attiva:'En curso',in_pausa:'En pausa',completata:'Completada',rifiutata:'Rechazada'}, stViews:'{d} de {t} visualizaciones', stClicks:'Clics en tu enlace: {c}', stReason:'Motivo: {r}', stPay:'Pago: envía {s} SOL a {a}', stNotFound:'Campaña no encontrada. Revisa el enlace.',
+      nav:['Inicio','FAQ','Términos'], play:'Jugar'},
+    it:{lead:'Porta la tua piattaforma davanti ai giocatori di DegenLand. Il tuo sito compare negli annunci che guardano per avviare la farm o ricaricare l\'energia, a rotazione con le altre campagne.',
+      how:'Come funziona', steps:[['Compila il modulo','Scegli titolo, link, numero di visualizzazioni e per quanto tempo resta a schermo l\'annuncio.'],['Paga','Invia SOL all\'indirizzo indicato, oppure paga con i tuoi token di gioco se giochi a DegenLand.'],['Controllo e rotazione','Il team controlla la richiesta, di solito entro 24 ore, e la campagna entra in rotazione fino a erogare tutte le visualizzazioni.']],
+      fT:'Crea la tua campagna', lTitle:'Titolo dell\'annuncio', hTitle:'Fino a 40 caratteri.', lDescr:'Descrizione breve (facoltativa)', hDescr:'Fino a 90 caratteri.', lUrl:'Indirizzo web',
+      lViews:'Visualizzazioni', lSec:'Tempo a schermo', hSec:'Una visualizzazione conta solo se il giocatore guarda l\'annuncio fino alla fine.', lPay:'Pagamento',
+      sol:'SOL', tok:'Token di gioco', lContact:'Contatto (email o Telegram)', hContact:'Ti scriviamo qui se c\'è qualcosa da verificare.', lWallet:'Wallet da cui pagherai (facoltativo)', hWallet:'Ci aiuta a trovare prima il tuo pagamento.', lContact2:'Contatto (facoltativo)',
+      whoIn:'Paghi come {n}. Saldo: {b} token.', whoOut:'Per pagare con i token di gioco, accedi prima al gioco.', login:'Accedi al gioco',
+      lAgree:'Accetto le <a href="{t}" target="_blank" rel="noopener">regole dell\'Advertise Center</a>: il mio sito non contiene nulla di illegale, ingannevole, per adulti o dannoso.', send:'Invia la richiesta',
+      approx:'≈ {s} SOL', approxT:'{t} token', pvT:'Anteprima', pvVisit:'Visita il sito', pvCd:'La farm si avvia tra {s} s', pvEmpty:'Il tuo titolo qui',
+      priceT:'Listino', priceNote:'Prezzi in dollari. Si pagano in SOL al cambio del momento o in token di gioco (1 token = 0,01 $). I pacchetti più grandi sono scontati.', viewsH:'Visualizzazioni', sec:'s',
+      errs:{adv_title:'Scrivi un titolo di almeno 3 caratteri.',adv_url:'Inserisci un indirizzo web valido (https://…).',adv_wallet:'Questo indirizzo Solana non è valido.',adv_contact:'Inserisci un contatto email o Telegram.',login_required:'Accedi al gioco per pagare con i token.',insufficient_funds:'Non hai abbastanza token.',adv_too_many:'Hai già 3 richieste in attesa di controllo.',rate_limited:'Troppe richieste: riprova più tardi.',captcha_required:'Completa la verifica anti-bot.',captcha_failed:'Verifica anti-bot non superata: riprova.',deposits_unavailable:'I pagamenti in SOL non sono ancora attivi: paga con i token o riprova più tardi.',agree:'Accetta le regole per continuare.',network:'Errore di connessione: riprova.',maintenance:'Manutenzione in corso: riprova più tardi.',generic:'Qualcosa non ha funzionato: riprova.'},
+      dSolT:'Richiesta n. {id} ricevuta', dSolP:'Invia esattamente questo importo sulla rete Solana. Un importo diverso non verrà abbinato alla tua campagna.', addr:'A questo indirizzo', copy:'Copia', copied:'Copiato', openW:'Apri nel wallet',
+      dSolN:'Quando arriva il pagamento, il team approva la campagna, di solito entro 24 ore.', dTokT:'Richiesta n. {id} ricevuta', dTokP:'{t} token verranno scalati dal tuo saldo quando il team approva la campagna, di solito entro 24 ore.',
+      track:'Segui la tua campagna', trackN:'Salva questo link: è l\'unico modo per vedere l\'avanzamento della campagna.', another:'Crea un\'altra campagna',
+      stT:'La tua campagna', stLab:{in_attesa:'In attesa di controllo',attiva:'In corso',in_pausa:'In pausa',completata:'Completata',rifiutata:'Rifiutata'}, stViews:'{d} su {t} visualizzazioni', stClicks:'Clic sul tuo link: {c}', stReason:'Motivo: {r}', stPay:'Pagamento: invia {s} SOL a {a}', stNotFound:'Campagna non trovata. Controlla il link.',
+      nav:['Home','FAQ','Termini'], play:'Gioca'},
+    ru:{lead:'Покажите свою платформу игрокам DegenLand. Ваш сайт появляется в рекламе, которую они смотрят, чтобы запустить ферму или восстановить энергию, по очереди с другими кампаниями.',
+      how:'Как это работает', steps:[['Заполните форму','Выберите заголовок, ссылку, число показов и время показа рекламы.'],['Оплатите','Отправьте SOL на указанный адрес или заплатите игровыми токенами, если играете в DegenLand.'],['Проверка и ротация','Команда проверяет заявку, обычно в течение 24 часов, и кампания показывается по очереди, пока не будут набраны все показы.']],
+      fT:'Создайте кампанию', lTitle:'Заголовок рекламы', hTitle:'До 40 символов.', lDescr:'Краткое описание (необязательно)', hDescr:'До 90 символов.', lUrl:'Адрес сайта',
+      lViews:'Показы', lSec:'Время на экране', hSec:'Показ засчитывается, только если игрок досмотрел рекламу до конца.', lPay:'Оплата',
+      sol:'SOL', tok:'Игровые токены', lContact:'Контакт (email или Telegram)', hContact:'Напишем сюда, если что-то нужно уточнить.', lWallet:'Кошелёк, с которого вы заплатите (необязательно)', hWallet:'Поможет быстрее найти ваш платёж.', lContact2:'Контакт (необязательно)',
+      whoIn:'Оплата от имени {n}. Баланс: {b} токенов.', whoOut:'Чтобы платить игровыми токенами, сначала войдите в игру.', login:'Войти в игру',
+      lAgree:'Я принимаю <a href="{t}" target="_blank" rel="noopener">правила Advertise Center</a>: на моём сайте нет ничего незаконного, вводящего в заблуждение, для взрослых или вредоносного.', send:'Отправить заявку',
+      approx:'≈ {s} SOL', approxT:'{t} токенов', pvT:'Предпросмотр', pvVisit:'Перейти на сайт', pvCd:'Ферма запустится через {s} с', pvEmpty:'Ваш заголовок',
+      priceT:'Цены', priceNote:'Цены в долларах. Оплата в SOL по текущему курсу или игровыми токенами (1 токен = 0,01 $). На большие пакеты действует скидка.', viewsH:'Показы', sec:'с',
+      errs:{adv_title:'Заголовок должен быть не короче 3 символов.',adv_url:'Введите корректный адрес сайта (https://…).',adv_wallet:'Этот адрес Solana неверен.',adv_contact:'Укажите email или контакт в Telegram.',login_required:'Войдите в игру, чтобы платить токенами.',insufficient_funds:'Недостаточно токенов.',adv_too_many:'У вас уже 3 заявки на проверке.',rate_limited:'Слишком много запросов: попробуйте позже.',captcha_required:'Пройдите проверку от ботов.',captcha_failed:'Проверка от ботов не пройдена: попробуйте снова.',deposits_unavailable:'Оплата в SOL пока не работает: заплатите токенами или попробуйте позже.',agree:'Примите правила, чтобы продолжить.',network:'Ошибка соединения: попробуйте снова.',maintenance:'Идут технические работы: попробуйте позже.',generic:'Что-то пошло не так: попробуйте снова.'},
+      dSolT:'Заявка № {id} получена', dSolP:'Отправьте ровно эту сумму в сети Solana. Другая сумма не будет связана с вашей кампанией.', addr:'На этот адрес', copy:'Копировать', copied:'Скопировано', openW:'Открыть в кошельке',
+      dSolN:'Когда платёж поступит, команда одобрит кампанию, обычно в течение 24 часов.', dTokT:'Заявка № {id} получена', dTokP:'{t} токенов спишутся с баланса, когда команда одобрит кампанию, обычно в течение 24 часов.',
+      track:'Следить за кампанией', trackN:'Сохраните эту ссылку: только по ней можно увидеть ход кампании.', another:'Создать ещё одну кампанию',
+      stT:'Ваша кампания', stLab:{in_attesa:'На проверке',attiva:'Идёт',in_pausa:'На паузе',completata:'Завершена',rifiutata:'Отклонена'}, stViews:'{d} из {t} показов', stClicks:'Переходы по ссылке: {c}', stReason:'Причина: {r}', stPay:'Оплата: отправьте {s} SOL на {a}', stNotFound:'Кампания не найдена. Проверьте ссылку.',
+      nav:['Главная','FAQ','Условия'], play:'Играть'}
+  };
+  var LOC = {en:'en-US',es:'es-ES',it:'it-IT',ru:'ru-RU'}, L = ['en','es','ru','it'];
+  var FALLBACK = {packs:[1000,2000,5000,10000], seconds:[5,7,10], quotes:[], sol_enabled:true};
+  [[1000,0],[2000,.05],[5000,.10],[10000,.15]].forEach(function(p){ [[5,2],[7,2.8],[10,3.8]].forEach(function(s){ var usd=Math.round(s[1]*p[0]/1000*(1-p[1])*100)/100; FALLBACK.quotes.push({views:p[0],seconds:s[0],usd:usd,sol:null,tokens:Math.round(usd*100)}); }); });
+  var qs = new URLSearchParams(location.search), lang = 'en';
+  try{ var q = qs.get('lang'), st = localStorage.getItem('degenland_lang'), nv = (navigator.language||'').slice(0,2);
+    lang = L.indexOf(q)>=0 ? q : (L.indexOf(st)>=0 ? st : (L.indexOf(nv)>=0 ? nv : 'en')); }catch(e){}
+  var INFO = FALLBACK, ME = null, CFG = {}, tsId = null, tsToken = null;
+  var sel = { views:1000, seconds:5, method:'SOL' };
+  function $(id){ return document.getElementById(id); }
+  function t(){ return T[lang]; }
+  function fill(s, o){ return String(s).replace(/\{(\w+)\}/g, function(_, k){ return o[k] != null ? o[k] : ''; }); }
+  function esc(v){ return String(v == null ? '' : v).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function usd(v){ return Number(v).toLocaleString(LOC[lang], {style:'currency', currency:'USD', currencyDisplay:'narrowSymbol'}); }
+  function num(v){ return Number(v).toLocaleString(LOC[lang]); }
+  function quote(){ for(var i=0;i<INFO.quotes.length;i++){ var q=INFO.quotes[i]; if(q.views===sel.views && q.seconds===sel.seconds) return q; } return null; }
+  function toast(m){ var e=$('toast'); e.textContent=m; e.classList.add('show'); clearTimeout(toast.h); toast.h=setTimeout(function(){ e.classList.remove('show'); },1800); }
+  function copy(v){ var ok=function(){ toast(t().copied); }; if(navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(v).then(ok, function(){ prompt('', v); }); else prompt('', v); }
+  function chips(box, name, items, cur){ $(box).innerHTML = items.map(function(it){ return '<label><input type="radio" name="'+name+'" value="'+it[0]+'"'+(String(it[0])===String(cur)?' checked':'')+'><span>'+esc(it[1])+'</span></label>'; }).join(''); }
+  function host(u){ try{ return new URL(u).hostname.replace(/^www\./,''); }catch(e){ return ''; } }
+
+  function renderStatic(){
+    var x = t(); document.documentElement.lang = lang;
+    var home = lang + '/index.html';
+    $('hHome').href = $('nHome').href = $('fHome').href = home; $('nFaq').href = lang + '/faq.html'; $('nTerms').href = lang + '/terms.html'; $('fTerms').href = lang + '/terms.html#t18';
+    $('nHome').textContent = x.nav[0]; $('nFaq').textContent = x.nav[1]; $('nTerms').textContent = x.nav[2]; $('fTerms').textContent = x.nav[2]; $('hPlay').textContent = x.play; $('hPlay').href = 'game/index.html?lang=' + lang;
+    $('langs').innerHTML = L.map(function(l){ return '<button type="button" data-l="'+l+'" aria-pressed="'+(l===lang)+'">'+l.toUpperCase()+'</button>'; }).join('');
+    $('lead').textContent = x.lead; $('howT').textContent = x.how;
+    $('steps').innerHTML = x.steps.map(function(s){ return '<div class="card step"><h3>'+esc(s[0])+'</h3><p>'+esc(s[1])+'</p></div>'; }).join('');
+    ['fT','lTitle','hTitle','lDescr','hDescr','lUrl','lViews','lSec','hSec','lPay','lContact','hContact','lWallet','hWallet','lContact2','pvT','priceT','priceNote'].forEach(function(k){ $(k).textContent = x[k]; });
+    $('lAgree').innerHTML = fill(x.lAgree, {t: lang + '/terms.html#t18'}); $('send').textContent = x.send;
+    chips('views', 'views', INFO.packs.map(function(v){ return [v, num(v)]; }), sel.views);
+    chips('secs', 'seconds', INFO.seconds.map(function(s){ return [s, s + ' ' + x.sec]; }), sel.seconds);
+    chips('method', 'method', [['SOL', x.sol], ['TOKEN', x.tok]], sel.method);
+    $('prices').innerHTML = '<thead><tr><th>'+x.viewsH+'</th>'+INFO.seconds.map(function(s){ return '<th>'+s+' '+x.sec+'</th>'; }).join('')+'</tr></thead><tbody>' +
+      INFO.packs.map(function(v){ return '<tr><td>'+num(v)+'</td>'+INFO.seconds.map(function(s){ var q=INFO.quotes.filter(function(z){ return z.views===v && z.seconds===s; })[0]; return '<td>'+(q?usd(q.usd):'–')+'</td>'; }).join('')+'</tr>'; }).join('') + '</tbody>';
+    renderDynamic();
+  }
+  function renderDynamic(){
+    var x = t(), q = quote();
+    $('solFields').hidden = sel.method !== 'SOL'; $('tokFields').hidden = sel.method !== 'TOKEN';
+    $('total').textContent = q ? usd(q.usd) : '–';
+    $('totalAlt').textContent = !q ? '' : sel.method === 'SOL' ? (q.sol ? fill(x.approx, {s: Number(q.sol).toLocaleString(LOC[lang], {maximumFractionDigits:4})}) : '') : fill(x.approxT, {t: num(q.tokens)});
+    $('who').innerHTML = ME ? esc(fill(x.whoIn, {n: ME.nickname, b: num(Math.floor(ME.tokens))})) : esc(x.whoOut) + ' <a href="game/index.html?lang='+lang+'">'+esc(x.login)+'</a>';
+    var ti = $('title').value.trim(), de = $('descr').value.trim(), u = $('url').value.trim();
+    $('pvTitle').textContent = ti || x.pvEmpty; $('pvDescr').textContent = de; $('pvDescr').hidden = !de; $('pvHost').textContent = host(u); $('pvGo').textContent = x.pvVisit;
+    $('pvArt').textContent = (ti || 'AD').replace(/[^\p{L}\p{N}]/gu, '').slice(0, 2).toUpperCase() || 'AD';
+    $('pvCd').textContent = fill(x.pvCd, {s: sel.seconds});
+  }
+  function showErr(code){ var x = t(); $('err').textContent = x.errs[code] || x.errs.generic; }
+
+  function loadTurnstile(){
+    if(!CFG.turnstile_site_key || tsId !== null) return;
+    window.dlTs = function(){ tsId = turnstile.render('#ts', { sitekey: CFG.turnstile_site_key, callback: function(tok){ tsToken = tok; }, 'expired-callback': function(){ tsToken = null; } }); };
+    var s = document.createElement('script'); s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=dlTs'; s.async = true; document.head.appendChild(s);
+  }
+  function resetTs(){ tsToken = null; try{ if(tsId !== null) turnstile.reset(tsId); }catch(e){} }
+
+  function submit(e){
+    e.preventDefault(); $('err').textContent = '';
+    if(!$('agree').checked) return showErr('agree');
+    var body = { title: $('title').value, descr: $('descr').value, url: $('url').value.trim(), views: sel.views, seconds: sel.seconds, method: sel.method,
+      contact: sel.method === 'SOL' ? $('contact').value : $('contact2').value, wallet: sel.method === 'SOL' ? $('wallet').value.trim() : '', captcha: tsToken };
+    if(body.url && !/^https?:\/\//i.test(body.url)) body.url = 'https://' + body.url;
+    $('send').disabled = true;
+    fetch('/api/adv/request', { method:'POST', headers:{ 'Content-Type':'application/json', 'X-DL':'1' }, credentials:'same-origin', body: JSON.stringify(body) })
+      .then(function(r){ return r.json(); })
+      .then(function(j){ $('send').disabled = false; if(!j.ok){ resetTs(); return showErr(j.error); } done(j); })
+      .catch(function(){ $('send').disabled = false; resetTs(); showErr('network'); });
+  }
+  function done(j){
+    var x = t(), link = location.origin + location.pathname + '?c=' + j.id + '&k=' + encodeURIComponent(j.key) + '&lang=' + lang, h;
+    if(j.method === 'SOL'){
+      h = '<h2>'+esc(fill(x.dSolT, {id:j.id}))+'</h2><p>'+esc(x.dSolP)+'</p><div class="pay"><div class="big">'+esc(j.sol)+' SOL</div>' +
+        '<div><p style="margin:0 0 6px;font-weight:700">'+esc(x.addr)+'</p><div class="row2"><input readonly value="'+esc(j.address)+'" aria-label="'+esc(x.addr)+'"><button class="btn" type="button" data-c="'+esc(j.address)+'">'+esc(x.copy)+'</button></div></div>' +
+        '<div class="row2"><button class="btn ghost" type="button" data-c="'+esc(j.sol)+'">'+esc(x.copy)+' SOL</button><a class="btn ghost" href="'+esc(j.uri)+'">'+esc(x.openW)+'</a></div><p style="margin:0">'+esc(x.dSolN)+'</p></div>';
+    } else {
+      h = '<h2>'+esc(fill(x.dTokT, {id:j.id}))+'</h2><p>'+esc(fill(x.dTokP, {t: num(j.tokens)}))+'</p>';
+    }
+    h += '<h3 style="margin-top:22px">'+esc(x.track)+'</h3><div class="pay"><div class="row2"><input readonly value="'+esc(link)+'"><button class="btn" type="button" data-c="'+esc(link)+'">'+esc(x.copy)+'</button></div><p class="disc" style="margin:0">'+esc(x.trackN)+'</p><p style="margin:0"><a href="'+esc(link)+'">'+esc(x.track)+'</a> · <a href="?lang='+lang+'">'+esc(x.another)+'</a></p></div>';
+    $('form').hidden = true; $('done').innerHTML = h; $('done').hidden = false; $('done').scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+  function status(id, key){
+    $('mainView').hidden = true; var box = $('statusView'); box.hidden = false;
+    fetch('/api/adv/status?id=' + encodeURIComponent(id) + '&k=' + encodeURIComponent(key)).then(function(r){ return r.json(); }).then(function(j){
+      var x = t(); if(!j.ok){ box.innerHTML = '<div class="card"><p>'+esc(x.stNotFound)+'</p></div>'; return; }
+      var c = j.campaign, pct = c.views_total ? Math.min(100, Math.round(c.views_done / c.views_total * 100)) : 0;
+      box.innerHTML = '<div class="ac-grid"><div class="card"><h2>'+esc(x.stT)+' #'+c.id+'</h2><p><span class="st">'+esc(x.stLab[c.status] || c.status)+'</span></p>' +
+        '<p style="margin:14px 0 6px;font-weight:700">'+esc(fill(x.stViews, {d: num(c.views_done), t: num(c.views_total)}))+'</p><div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+pct+'"><i style="width:'+pct+'%"></i></div>' +
+        '<p style="margin-top:12px">'+esc(fill(x.stClicks, {c: num(c.clicks)}))+'</p>' +
+        (c.status === 'rifiutata' && c.reject_reason ? '<p>'+esc(fill(x.stReason, {r: c.reject_reason}))+'</p>' : '') +
+        (c.address ? '<p>'+esc(fill(x.stPay, {s: c.sol, a: c.address}))+'</p>' : '') +
+        '<p style="margin-top:16px"><a href="?lang='+lang+'">'+esc(x.another)+'</a></p></div>' +
+        '<div class="pv"><p class="lab">Sponsor</p><div class="art">'+esc((c.title||'AD').replace(/[^\p{L}\p{N}]/gu,'').slice(0,2).toUpperCase())+'</div><h3>'+esc(c.title)+'</h3>'+(c.descr?'<p>'+esc(c.descr)+'</p>':'')+'<p class="host">'+esc(host(c.url))+'</p><span class="go">'+esc(x.pvVisit)+'</span><p class="cd">'+c.seconds+' '+x.sec+'</p></div></div>';
+    }).catch(function(){ box.innerHTML = '<div class="card"><p>'+esc(t().errs.network)+'</p></div>'; });
+  }
+
+  document.addEventListener('click', function(e){
+    var b = e.target.closest('[data-l]'); if(b){ lang = b.getAttribute('data-l'); try{ localStorage.setItem('degenland_lang', lang); }catch(x){} renderStatic(); var c = qs.get('c'); if(c) status(c, qs.get('k')); return; }
+    var c = e.target.closest('[data-c]'); if(c) copy(c.getAttribute('data-c'));
+  });
+  document.addEventListener('change', function(e){ var n = e.target.name; if(n === 'views' || n === 'seconds') sel[n] = +e.target.value; if(n === 'method') sel.method = e.target.value; renderDynamic(); });
+  ['title','descr','url'].forEach(function(id){ $(id).addEventListener('input', renderDynamic); });
+  $('form').addEventListener('submit', submit);
+
+  renderStatic();
+  if(qs.get('c')) status(qs.get('c'), qs.get('k'));
+  fetch('/api/adv/info').then(function(r){ return r.json(); }).then(function(j){ if(j.ok && j.quotes){ INFO = j; if(!j.sol_enabled && sel.method === 'SOL') sel.method = 'TOKEN'; renderStatic(); } }).catch(function(){});
+  fetch('/api/config').then(function(r){ return r.json(); }).then(function(j){ CFG = j || {}; loadTurnstile(); }).catch(function(){});
+  fetch('/api/state', { headers:{ 'X-DL':'1' }, credentials:'same-origin' }).then(function(r){ return r.json(); }).then(function(j){ if(j.ok && j.me){ ME = { nickname: j.me.nickname, tokens: (j.balances && j.balances.token_milli || 0) / 1000 }; renderDynamic(); } }).catch(function(){});
+})();
+</script>
+</body>
+</html>

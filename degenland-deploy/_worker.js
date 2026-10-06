@@ -96,8 +96,31 @@ const validEmail = e => /^[^\s@]{1,64}@[^\s@]{1,190}\.[^\s@]{2,}$/.test(e) && e.
    Convenzioni: importi SOL in lamport (interi), token in millesimi (1 token = 1000),
    tempi in millisecondi UTC. Le operazioni multiple passano SEMPRE da db.batch()
    (atomico): i vincoli CHECK/UNIQUE fanno fallire e annullare l'intero batch. */
-const SCHEMA_VERSION = 3;
-const MIGRATIONS = { 3: [
+const SCHEMA_VERSION = 4;
+const MIGRATIONS = { 4: [   // v4: Advertise Center (campagne a rotazione negli annunci del gioco)
+  'ALTER TABLE ad_sessions ADD COLUMN campaign_id INTEGER',
+  'ALTER TABLE ad_sessions ADD COLUMN min_seconds INTEGER',
+`CREATE TABLE IF NOT EXISTS adv_campaigns(
+  id INTEGER PRIMARY KEY AUTOINCREMENT, kind TEXT NOT NULL DEFAULT 'paid' CHECK(kind IN ('paid','house')),
+  title TEXT NOT NULL, descr TEXT, url TEXT NOT NULL, seconds INTEGER NOT NULL CHECK(seconds IN (5,7,10)),
+  views_total INTEGER NOT NULL DEFAULT 0, views_done INTEGER NOT NULL DEFAULT 0, clicks INTEGER NOT NULL DEFAULT 0,
+  pay_method TEXT CHECK(pay_method IN ('SOL','TOKEN')), price_usd REAL, price_lamports INTEGER, price_milli INTEGER,
+  user_id INTEGER, contact TEXT, payer_wallet TEXT, tx_signature TEXT, view_key_hash TEXT,
+  status TEXT NOT NULL CHECK(status IN ('in_attesa','attiva','in_pausa','completata','rifiutata')),
+  frame INTEGER NOT NULL DEFAULT 0, reject_reason TEXT, last_served_at INTEGER NOT NULL DEFAULT 0,
+  ip TEXT, created_at INTEGER NOT NULL, decided_at INTEGER, decided_by INTEGER)`,
+`CREATE INDEX IF NOT EXISTS adv_serve ON adv_campaigns(status, kind, last_served_at)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,created_at) VALUES(1,'house','ToolsEdge','Free crypto and iGaming calculators in one place','https://toolsedge.cloud/',5,'attiva',CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,created_at) VALUES(2,'house','Edge Rates','Compare swap routes and rates across providers','https://toolsedge.cloud/crypto/edge-rates',5,'attiva',CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,created_at) VALUES(3,'house','Edge Staking','Compare staking yields and APY before you stake','https://toolsedge.cloud/crypto/edge-staking',5,'attiva',CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,created_at) VALUES(4,'house','Edge Wagering','Casino bonus wagering calculator','https://toolsedge.cloud/igaming/edge-wagering',5,'attiva',CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,created_at) VALUES(5,'house','Edge Rakeback','Casino rakeback calculator and comparison','https://toolsedge.cloud/igaming/edge-rakeback',5,'attiva',CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,created_at) VALUES(6,'house','Edge DCA','Simulate a dollar-cost averaging strategy','https://toolsedge.cloud/crypto/edge-dca',5,'attiva',CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,created_at) VALUES(7,'house','Edge Liquidation','Futures margin and liquidation price calculator','https://toolsedge.cloud/crypto/edge-liquidation',5,'attiva',CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,created_at) VALUES(8,'house','Edge CEX Arbitrage','Scan price gaps between exchanges','https://toolsedge.cloud/crypto/edge-cex-arbitrage',5,'attiva',CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,created_at) VALUES(9,'house','Edge DEX Arbitrage','Scan price gaps between liquidity pools','https://toolsedge.cloud/crypto/edge-dex-arbitrage',5,'attiva',CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,created_at) VALUES(10,'house','Edge Surebet','Find sportsbook arbitrage opportunities','https://toolsedge.cloud/sports/edge-surebet',5,'attiva',CAST(strftime('%s','now') AS INTEGER)*1000)`,
+], 3: [
   'ALTER TABLE users ADD COLUMN wd_hold INTEGER NOT NULL DEFAULT 0',
   'ALTER TABLE miners ADD COLUMN special TEXT',
   'ALTER TABLE ip_events ADD COLUMN ip_key TEXT',
@@ -221,7 +244,27 @@ const SCHEMA = [
   price_milli INTEGER NOT NULL, starts_at INTEGER NOT NULL, ends_at INTEGER NOT NULL, created_at INTEGER NOT NULL)`,
 `CREATE TABLE IF NOT EXISTS ad_sessions(
   id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL, purpose TEXT NOT NULL,
-  token_hash TEXT NOT NULL UNIQUE, started_at INTEGER NOT NULL, completed_at INTEGER, ip TEXT)`,
+  token_hash TEXT NOT NULL UNIQUE, started_at INTEGER NOT NULL, completed_at INTEGER, ip TEXT, campaign_id INTEGER, min_seconds INTEGER)`,
+`CREATE TABLE IF NOT EXISTS adv_campaigns(
+  id INTEGER PRIMARY KEY AUTOINCREMENT, kind TEXT NOT NULL DEFAULT 'paid' CHECK(kind IN ('paid','house')),
+  title TEXT NOT NULL, descr TEXT, url TEXT NOT NULL, seconds INTEGER NOT NULL CHECK(seconds IN (5,7,10)),
+  views_total INTEGER NOT NULL DEFAULT 0, views_done INTEGER NOT NULL DEFAULT 0, clicks INTEGER NOT NULL DEFAULT 0,
+  pay_method TEXT CHECK(pay_method IN ('SOL','TOKEN')), price_usd REAL, price_lamports INTEGER, price_milli INTEGER,
+  user_id INTEGER, contact TEXT, payer_wallet TEXT, tx_signature TEXT, view_key_hash TEXT,
+  status TEXT NOT NULL CHECK(status IN ('in_attesa','attiva','in_pausa','completata','rifiutata')),
+  frame INTEGER NOT NULL DEFAULT 0, reject_reason TEXT, last_served_at INTEGER NOT NULL DEFAULT 0,
+  ip TEXT, created_at INTEGER NOT NULL, decided_at INTEGER, decided_by INTEGER)`,
+`CREATE INDEX IF NOT EXISTS adv_serve ON adv_campaigns(status, kind, last_served_at)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,created_at) VALUES(1,'house','ToolsEdge','Free crypto and iGaming calculators in one place','https://toolsedge.cloud/',5,'attiva',CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,created_at) VALUES(2,'house','Edge Rates','Compare swap routes and rates across providers','https://toolsedge.cloud/crypto/edge-rates',5,'attiva',CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,created_at) VALUES(3,'house','Edge Staking','Compare staking yields and APY before you stake','https://toolsedge.cloud/crypto/edge-staking',5,'attiva',CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,created_at) VALUES(4,'house','Edge Wagering','Casino bonus wagering calculator','https://toolsedge.cloud/igaming/edge-wagering',5,'attiva',CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,created_at) VALUES(5,'house','Edge Rakeback','Casino rakeback calculator and comparison','https://toolsedge.cloud/igaming/edge-rakeback',5,'attiva',CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,created_at) VALUES(6,'house','Edge DCA','Simulate a dollar-cost averaging strategy','https://toolsedge.cloud/crypto/edge-dca',5,'attiva',CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,created_at) VALUES(7,'house','Edge Liquidation','Futures margin and liquidation price calculator','https://toolsedge.cloud/crypto/edge-liquidation',5,'attiva',CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,created_at) VALUES(8,'house','Edge CEX Arbitrage','Scan price gaps between exchanges','https://toolsedge.cloud/crypto/edge-cex-arbitrage',5,'attiva',CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,created_at) VALUES(9,'house','Edge DEX Arbitrage','Scan price gaps between liquidity pools','https://toolsedge.cloud/crypto/edge-dex-arbitrage',5,'attiva',CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,created_at) VALUES(10,'house','Edge Surebet','Find sportsbook arbitrage opportunities','https://toolsedge.cloud/sports/edge-surebet',5,'attiva',CAST(strftime('%s','now') AS INTEGER)*1000)`,
 `CREATE TABLE IF NOT EXISTS accounts(
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   owner_id INTEGER REFERENCES users(id), system_code TEXT,
@@ -345,6 +388,7 @@ const DEFAULT_PARAMS = {
   rack_prices_token: [0, 500, 1000, 2000, 4000, 8000], max_racks: 6, slots_per_rack: 4,
   extensions: [{ days: 3, usd: 0.30 }, { days: 7, usd: 0.60 }, { days: 14, usd: 1.00 }],
   farm_window_hours: 24, ad_min_seconds: 3,
+  adv_cpm_usd: { 5: 2.0, 7: 2.8, 10: 3.8 }, adv_packs: [1000, 2000, 5000, 10000], adv_discount: [0, 0.05, 0.10, 0.15],
   deposit_min_lamports: 10000000, deposit_max_lamports: 50000000000, deposit_ttl_minutes: 60,
 };
 
@@ -683,8 +727,9 @@ async function adBegin(ctx, body) {
   const purpose = body.purpose; if (!['farm', 'energy'].includes(purpose)) throw bad('invalid_purpose');
   await rateLimit(ctx.db, 'ad:' + ctx.user.id, 40, HOUR);
   const p = await getParams(ctx.env); const token = rid(24);
-  await dbRun(ctx.db, 'INSERT INTO ad_sessions(user_id,purpose,token_hash,started_at,ip) VALUES(?,?,?,?,?)', ctx.user.id, purpose, await sha256hex(token), NOW(), ctx.ip);
-  return { token, min_seconds: p.ad_min_seconds };
+  const c = await advPick(ctx.db); const min = Math.max(p.ad_min_seconds, c ? c.seconds : 0);
+  await dbRun(ctx.db, 'INSERT INTO ad_sessions(user_id,purpose,token_hash,started_at,ip,campaign_id,min_seconds) VALUES(?,?,?,?,?,?,?)', ctx.user.id, purpose, await sha256hex(token), NOW(), ctx.ip, c ? c.id : null, min);
+  return { token, min_seconds: min, ad: c ? { title: c.title, descr: c.descr || '', url: c.url, frame: !!c.frame, house: c.kind === 'house' } : null };
 }
 async function adCheck(ctx, token, purpose) { // verifica (senza consumare); il consumo avviene nel batch con una guard
   if (!token) throw bad('ad_required');
@@ -693,10 +738,129 @@ async function adCheck(ctx, token, purpose) { // verifica (senza consumare); il 
   if (r.completed_at) throw bad('ad_used');
   const p = await getParams(ctx.env);
   if (NOW() - r.started_at > 15 * MIN) throw bad('ad_expired');
-  if (NOW() - r.started_at < p.ad_min_seconds * SEC) throw bad('ad_too_early');
+  if (NOW() - r.started_at < (r.min_seconds || p.ad_min_seconds) * SEC) throw bad('ad_too_early');
   return r;
 }
-const adConsume = (db, r) => [guard(db, 'ad:' + r.id), st(db, 'UPDATE ad_sessions SET completed_at=? WHERE id=?', NOW(), r.id)];
+const adConsume = (db, r) => [guard(db, 'ad:' + r.id), st(db, 'UPDATE ad_sessions SET completed_at=? WHERE id=?', NOW(), r.id),
+  ...(r.campaign_id ? [st(db, "UPDATE adv_campaigns SET views_done=views_done+1, status=CASE WHEN kind='paid' AND views_done+1>=views_total THEN 'completata' ELSE status END WHERE id=?", r.campaign_id)] : [])];
+
+/* ============================ ADVERTISE CENTER ============================
+   Le campagne pagate (SOL o token) entrano a rotazione negli annunci che i giocatori guardano per
+   avviare la farm o ricaricare l'energia. Una "view" conta quando l'annuncio viene guardato fino alla fine.
+   Senza campagne pagate attive girano gli annunci della casa (kind='house'). */
+async function advPick(db) {
+  let c = await dbOne(db, "SELECT * FROM adv_campaigns WHERE status='attiva' AND kind='paid' AND views_done<views_total ORDER BY last_served_at ASC, id ASC LIMIT 1");
+  if (!c) c = await dbOne(db, "SELECT * FROM adv_campaigns WHERE status='attiva' AND kind='house' ORDER BY last_served_at ASC, id ASC LIMIT 1");
+  if (c) await dbRun(db, 'UPDATE adv_campaigns SET last_served_at=? WHERE id=?', NOW(), c.id);
+  return c;
+}
+async function adClick(ctx, body) {
+  const r = await dbOne(ctx.db, 'SELECT * FROM ad_sessions WHERE token_hash=?', await sha256hex(String(body.token || '')));
+  if (!r || r.user_id !== ctx.user.id || !r.campaign_id) return {};
+  try { await runBatch(ctx.db, [guard(ctx.db, 'adclick:' + r.id), st(ctx.db, 'UPDATE adv_campaigns SET clicks=clicks+1 WHERE id=?', r.campaign_id)]); } catch (e) { /* già contato */ }
+  return {};
+}
+const ADV_SECONDS = [5, 7, 10];
+function advQuote(p, fx, views, seconds) {
+  const i = p.adv_packs.indexOf(views); if (i < 0 || !ADV_SECONDS.includes(seconds)) return null;
+  const usd = Math.round(p.adv_cpm_usd[seconds] * views / 1000 * (1 - (p.adv_discount[i] || 0)) * 100) / 100;
+  return { views, seconds, usd, lamports: Math.ceil(usd / fx * LAMPORTS / 1e6) * 1e6, milli: Math.round(usd / p.token_usd * 1000) };
+}
+async function advInfo(ctx) {
+  const p = await getParams(ctx.env), fx = await getFx(ctx.env); const quotes = [];
+  for (const v of p.adv_packs) for (const sec of ADV_SECONDS) { const q = advQuote(p, fx, v, sec); quotes.push({ views: v, seconds: sec, usd: q.usd, sol: solStr(q.lamports), tokens: q.milli / 1000 }); }
+  ctx.cacheControl = 'public, max-age=60';
+  return { packs: p.adv_packs, seconds: ADV_SECONDS, discount: p.adv_discount, sol_usd: fx, quotes, sol_enabled: !!ctx.env.TREASURY_ADDRESS };
+}
+const cleanText = (v, max) => String(v || '').replace(/[\u0000-\u001f\u007f<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, max);
+async function advRequest(ctx, body) {
+  const db = ctx.db, env = ctx.env, p = await getParams(env);
+  await rateLimit(db, 'adv:ip:' + ctx.ip, 6, HOUR);
+  const title = cleanText(body.title, 40), descr = cleanText(body.descr, 90), contact = cleanText(body.contact, 120), wallet = cleanText(body.wallet, 64);
+  if (title.length < 3) throw bad('adv_title', 'Titolo troppo corto');
+  let url; try { url = new URL(String(body.url || '').trim()); } catch (e) { throw bad('adv_url', 'Indirizzo web non valido'); }
+  if (!/^https?:$/.test(url.protocol) || url.href.length > 300 || !url.hostname.includes('.')) throw bad('adv_url', 'Indirizzo web non valido');
+  const views = +body.views, seconds = +body.seconds, method = body.method === 'TOKEN' ? 'TOKEN' : 'SOL';
+  const fx = await getFx(env); const q = advQuote(p, fx, views, seconds); if (!q) throw bad('adv_pack', 'Pacchetto non valido');
+  if (wallet && !/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(wallet)) throw bad('adv_wallet', 'Indirizzo Solana non valido');
+  await turnstileCheck(ctx, body.captcha);
+  const key = rid(16), keyHash = await sha256hex(key), t = NOW();
+  const cols = 'kind,title,descr,url,seconds,views_total,pay_method,price_usd,price_lamports,price_milli,user_id,contact,payer_wallet,view_key_hash,status,ip,created_at';
+  if (method === 'TOKEN') {
+    await authUser(ctx, { required: false }); if (!ctx.user) throw unauth('login_required', 'Accedi al gioco per pagare con i token');
+    const n = (await dbOne(db, "SELECT COUNT(*) c FROM adv_campaigns WHERE user_id=? AND status='in_attesa'", ctx.user.id)).c; if (n >= 3) throw conflict('adv_too_many', 'Hai già 3 richieste in attesa');
+    const b = await balancesOf(db, ctx.user.id); if (b.TOKEN < q.milli) throw bad('insufficient_funds', 'Token insufficienti');
+    await dbRun(db, `INSERT INTO adv_campaigns(${cols}) VALUES('paid',?,?,?,?,?,'TOKEN',?,NULL,?,?,?,?,?,'in_attesa',?,?)`, title, descr, url.href, seconds, views, q.usd, q.milli, ctx.user.id, contact || null, wallet || null, keyHash, ctx.ip, t);
+    const r = await dbOne(db, 'SELECT id FROM adv_campaigns WHERE view_key_hash=?', keyHash);
+    return { id: r.id, key, method, usd: q.usd, tokens: q.milli / 1000, nickname: ctx.user.nickname };
+  }
+  if (!env.TREASURY_ADDRESS) throw new HttpError(503, 'deposits_unavailable', 'Pagamenti in SOL non ancora attivi');
+  if (contact.length < 3) throw bad('adv_contact', 'Inserisci un contatto');
+  // importo unico: multiplo di 0,00001 SOL, così non si confonde mai con i depositi dei giocatori (che finiscono con 1-9999 lamport)
+  let lam = 0;
+  for (let i = 0; i < 20 && !lam; i++) { const c = q.lamports + randInt(1, 99) * 10000; if (!(await dbOne(db, "SELECT 1 x FROM adv_campaigns WHERE status='in_attesa' AND price_lamports=?", c))) lam = c; }
+  if (!lam) throw conflict('busy');
+  await dbRun(db, `INSERT INTO adv_campaigns(${cols}) VALUES('paid',?,?,?,?,?,'SOL',?,?,NULL,NULL,?,?,?,'in_attesa',?,?)`, title, descr, url.href, seconds, views, q.usd, lam, contact, wallet || null, keyHash, ctx.ip, t);
+  const r = await dbOne(db, 'SELECT id FROM adv_campaigns WHERE view_key_hash=?', keyHash);
+  return { id: r.id, key, method, usd: q.usd, lamports: lam, sol: solStr(lam), address: env.TREASURY_ADDRESS, uri: `solana:${env.TREASURY_ADDRESS}?amount=${solStr(lam)}&label=DegenLand%20Ads` };
+}
+async function advStatus(ctx, url) {
+  const id = +url.searchParams.get('id'), key = String(url.searchParams.get('k') || '');
+  const c = isInt(id) ? await dbOne(ctx.db, 'SELECT * FROM adv_campaigns WHERE id=? AND kind=\'paid\'', id) : null;
+  if (!c || !key || !timingSafeEq(c.view_key_hash || '', await sha256hex(key))) throw notfound('adv_not_found', 'Campagna non trovata');
+  ctx.cacheControl = 'no-store';
+  return { campaign: { id: c.id, title: c.title, descr: c.descr, url: c.url, seconds: c.seconds, views_total: c.views_total, views_done: c.views_done, clicks: c.clicks, status: c.status, method: c.pay_method, usd: c.price_usd,
+    sol: c.price_lamports ? solStr(c.price_lamports) : null, tokens: c.price_milli ? c.price_milli / 1000 : null, address: c.pay_method === 'SOL' && c.status === 'in_attesa' ? ctx.env.TREASURY_ADDRESS : null, reject_reason: c.reject_reason, created_at: c.created_at } };
+}
+/* --- console --- */
+async function advPaymentSeen(db, c) {
+  if (c.pay_method !== 'SOL' || !c.price_lamports) return null;
+  return dbOne(db, "SELECT id, signature, sender, detected_at FROM deposits WHERE lamports=? AND status='non_abbinato' AND detected_at>=? ORDER BY id LIMIT 1", c.price_lamports, c.created_at - 10 * MIN);
+}
+async function adminAdvList(ctx, url) {
+  const db = ctx.db, f = url.searchParams.get('status') || 'in_attesa';
+  const where = f === 'house' ? "c.kind='house'" : f === 'tutte' ? "c.kind='paid'" : "c.kind='paid' AND c.status=?";
+  const rows = await dbAll(db, `SELECT c.*, u.nickname FROM adv_campaigns c LEFT JOIN users u ON u.id=c.user_id WHERE ${where} ORDER BY c.id DESC LIMIT 200`, ...(f === 'house' || f === 'tutte' ? [] : [f]));
+  for (const r of rows) { delete r.view_key_hash; delete r.ip; if (r.status === 'in_attesa') r.payment = await advPaymentSeen(db, r); r.sol = r.price_lamports ? solStr(r.price_lamports) : null; r.tokens = r.price_milli ? r.price_milli / 1000 : null; }
+  const counts = Object.fromEntries((await dbAll(db, "SELECT status, COUNT(*) n FROM adv_campaigns WHERE kind='paid' GROUP BY status")).map(r => [r.status, r.n]));
+  return { campaigns: rows, counts, treasury: ctx.env.TREASURY_ADDRESS || null };
+}
+async function adminAdvApprove(ctx, id, body) {
+  const db = ctx.db, a = ctx.admin, c = await dbOne(db, "SELECT * FROM adv_campaigns WHERE id=? AND status='in_attesa' AND kind='paid'", id); if (!c) throw notfound('adv_not_found', 'Richiesta non in attesa');
+  const t = NOW(), frame = body.frame ? 1 : 0; const s = [guard(db, 'adv:' + id)];
+  if (c.pay_method === 'SOL') {
+    const dep = await advPaymentSeen(db, c); const tx = String(body.tx || '').trim().slice(0, 120) || (dep && dep.signature) || null;
+    if (!dep && !body.confirm) throw bad('adv_unpaid', 'Pagamento non trovato: verifica a mano e conferma');
+    if (dep) s.push(st(db, "UPDATE deposits SET status='scartato', note=? WHERE id=? AND status='non_abbinato'", 'pubblicità #' + id, dep.id));
+    const ext = await sysAcc(db, 'external_sol', 'SOL'), pool = await sysAcc(db, 'pool_sol', 'SOL');
+    s.push(st(db, 'INSERT INTO treasury_movements(kind,lamports,tx_signature,admin_id,note,created_at) VALUES(?,?,?,?,?,?)', 'ricavi_extra', c.price_lamports, tx, a.id, 'Advertise Center #' + id, t));
+    s.push(...ledgerStmts(db, 'pubblicita_sol', [{ acc: ext, asset: 'SOL', amt: -c.price_lamports }, { acc: pool, asset: 'SOL', amt: c.price_lamports }], { admin: a.id, memo: 'Advertise Center #' + id }));
+    s.push(st(db, "UPDATE adv_campaigns SET status='attiva', frame=?, tx_signature=?, decided_at=?, decided_by=? WHERE id=? AND status='in_attesa'", frame, tx, t, a.id, id));
+  } else {
+    const accs = await userAccs(ctx, c.user_id), tsink = await sysAcc(db, 'token_sink', 'TOKEN');
+    s.push(...ledgerStmts(db, 'pubblicita_token', [{ acc: accs.TOKEN, asset: 'TOKEN', amt: -c.price_milli }, { acc: tsink, asset: 'TOKEN', amt: c.price_milli }], { admin: a.id, memo: 'Advertise Center #' + id }));
+    s.push(st(db, "UPDATE adv_campaigns SET status='attiva', frame=?, decided_at=?, decided_by=? WHERE id=? AND status='in_attesa'", frame, t, a.id, id));
+  }
+  s.push(auditStmt(db, a.id, 'approva_pubblicita', 'adv_campaigns', id, { status: 'in_attesa' }, { status: 'attiva', method: c.pay_method }, ctx.ip));
+  await runBatch(db, s); invalidateCaches(); return {};
+}
+async function adminAdvReject(ctx, id, body) {
+  const db = ctx.db, reason = cleanText(body.reason, 200); if (reason.length < 3) throw bad('reason_required', 'Indica il motivo');
+  const c = await dbOne(db, "SELECT * FROM adv_campaigns WHERE id=? AND status='in_attesa' AND kind='paid'", id); if (!c) throw notfound('adv_not_found', 'Richiesta non in attesa');
+  await runBatch(db, [guard(db, 'adv:' + id), st(db, "UPDATE adv_campaigns SET status='rifiutata', reject_reason=?, decided_at=?, decided_by=? WHERE id=? AND status='in_attesa'", reason, NOW(), ctx.admin.id, id),
+    auditStmt(db, ctx.admin.id, 'rifiuta_pubblicita', 'adv_campaigns', id, { status: 'in_attesa' }, { status: 'rifiutata', reason }, ctx.ip)]);
+  return {};
+}
+async function adminAdvSet(ctx, id, body) {
+  const db = ctx.db, c = await dbOne(db, 'SELECT * FROM adv_campaigns WHERE id=?', id); if (!c) throw notfound('adv_not_found');
+  const act = body.action; let sql;
+  if (act === 'pause' && c.status === 'attiva') sql = "UPDATE adv_campaigns SET status='in_pausa' WHERE id=?";
+  else if (act === 'resume' && c.status === 'in_pausa') sql = "UPDATE adv_campaigns SET status='attiva' WHERE id=?";
+  else if (act === 'frame_on' || act === 'frame_off') sql = `UPDATE adv_campaigns SET frame=${act === 'frame_on' ? 1 : 0} WHERE id=?`;
+  else throw bad('invalid_action');
+  await db.batch([st(db, sql, id), auditStmt(db, ctx.admin.id, 'pubblicita_' + act, 'adv_campaigns', id, { status: c.status }, null, ctx.ip)]);
+  return {};
+}
 
 /* ---------- avvio della farm ---------- */
 function windowStmts(db, ctxUser, farm, pool, source, extra = {}) {
@@ -1628,6 +1792,14 @@ const ROUTES = [
   P('GET', '/api/leaderboard', c => leaderboardPublic(c, c.url), 'user'),
   P('GET', '/api/referrals', c => referralsList(c), 'user'),
   P('POST', '/api/ad/begin', (c, b) => adBegin(c, b), 'user'),
+  P('POST', '/api/ad/click', (c, b) => adClick(c, b), 'user'),
+  P('GET', '/api/adv/info', c => advInfo(c)),
+  P('POST', '/api/adv/request', (c, b) => advRequest(c, b)),
+  P('GET', '/api/adv/status', c => advStatus(c, c.url)),
+  P('GET', '/api/admin/adv', c => adminAdvList(c, c.url), 'admin'),
+  P('POST', '/api/admin/adv/:id/approve', (c, b) => adminAdvApprove(c, +c.params.id, b), 'admin', ADMIN_ROLES.wd),
+  P('POST', '/api/admin/adv/:id/reject', (c, b) => adminAdvReject(c, +c.params.id, b), 'admin', ADMIN_ROLES.wd),
+  P('POST', '/api/admin/adv/:id/set', (c, b) => adminAdvSet(c, +c.params.id, b), 'admin', ADMIN_ROLES.wd),
   P('POST', '/api/farm/start', (c, b) => farmStart(c, b), 'user'),
   P('POST', '/api/tap', (c, b) => tap(c, b), 'user'),
   P('POST', '/api/energy/recharge', (c, b) => energyRecharge(c, b), 'user'),
