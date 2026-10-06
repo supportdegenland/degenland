@@ -96,8 +96,9 @@ const validEmail = e => /^[^\s@]{1,64}@[^\s@]{1,190}\.[^\s@]{2,}$/.test(e) && e.
    Convenzioni: importi SOL in lamport (interi), token in millesimi (1 token = 1000),
    tempi in millisecondi UTC. Le operazioni multiple passano SEMPRE da db.batch()
    (atomico): i vincoli CHECK/UNIQUE fanno fallire e annullare l'intero batch. */
-const SCHEMA_VERSION = 4;
-const MIGRATIONS = { 4: [   // v4: Advertise Center (campagne a rotazione negli annunci del gioco)
+const SCHEMA_VERSION = 5;
+const MIGRATIONS = { 5: ["UPDATE adv_campaigns SET frame=1 WHERE kind='house'"],   // v5: anteprima navigabile per gli annunci della casa
+  4: [   // v4: Advertise Center (campagne a rotazione negli annunci del gioco)
   'ALTER TABLE ad_sessions ADD COLUMN campaign_id INTEGER',
   'ALTER TABLE ad_sessions ADD COLUMN min_seconds INTEGER',
 `CREATE TABLE IF NOT EXISTS adv_campaigns(
@@ -110,16 +111,16 @@ const MIGRATIONS = { 4: [   // v4: Advertise Center (campagne a rotazione negli 
   frame INTEGER NOT NULL DEFAULT 0, reject_reason TEXT, last_served_at INTEGER NOT NULL DEFAULT 0,
   ip TEXT, created_at INTEGER NOT NULL, decided_at INTEGER, decided_by INTEGER)`,
 `CREATE INDEX IF NOT EXISTS adv_serve ON adv_campaigns(status, kind, last_served_at)`,
-`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,created_at) VALUES(1,'house','ToolsEdge','Free crypto and iGaming calculators in one place','https://toolsedge.cloud/',5,'attiva',CAST(strftime('%s','now') AS INTEGER)*1000)`,
-`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,created_at) VALUES(2,'house','Edge Rates','Compare swap routes and rates across providers','https://toolsedge.cloud/crypto/edge-rates',5,'attiva',CAST(strftime('%s','now') AS INTEGER)*1000)`,
-`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,created_at) VALUES(3,'house','Edge Staking','Compare staking yields and APY before you stake','https://toolsedge.cloud/crypto/edge-staking',5,'attiva',CAST(strftime('%s','now') AS INTEGER)*1000)`,
-`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,created_at) VALUES(4,'house','Edge Wagering','Casino bonus wagering calculator','https://toolsedge.cloud/igaming/edge-wagering',5,'attiva',CAST(strftime('%s','now') AS INTEGER)*1000)`,
-`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,created_at) VALUES(5,'house','Edge Rakeback','Casino rakeback calculator and comparison','https://toolsedge.cloud/igaming/edge-rakeback',5,'attiva',CAST(strftime('%s','now') AS INTEGER)*1000)`,
-`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,created_at) VALUES(6,'house','Edge DCA','Simulate a dollar-cost averaging strategy','https://toolsedge.cloud/crypto/edge-dca',5,'attiva',CAST(strftime('%s','now') AS INTEGER)*1000)`,
-`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,created_at) VALUES(7,'house','Edge Liquidation','Futures margin and liquidation price calculator','https://toolsedge.cloud/crypto/edge-liquidation',5,'attiva',CAST(strftime('%s','now') AS INTEGER)*1000)`,
-`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,created_at) VALUES(8,'house','Edge CEX Arbitrage','Scan price gaps between exchanges','https://toolsedge.cloud/crypto/edge-cex-arbitrage',5,'attiva',CAST(strftime('%s','now') AS INTEGER)*1000)`,
-`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,created_at) VALUES(9,'house','Edge DEX Arbitrage','Scan price gaps between liquidity pools','https://toolsedge.cloud/crypto/edge-dex-arbitrage',5,'attiva',CAST(strftime('%s','now') AS INTEGER)*1000)`,
-`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,created_at) VALUES(10,'house','Edge Surebet','Find sportsbook arbitrage opportunities','https://toolsedge.cloud/sports/edge-surebet',5,'attiva',CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,frame,created_at) VALUES(1,'house','ToolsEdge','Free crypto and iGaming calculators in one place','https://toolsedge.cloud/',5,'attiva',1,CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,frame,created_at) VALUES(2,'house','Edge Rates','Compare swap routes and rates across providers','https://toolsedge.cloud/crypto/edge-rates',5,'attiva',1,CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,frame,created_at) VALUES(3,'house','Edge Staking','Compare staking yields and APY before you stake','https://toolsedge.cloud/crypto/edge-staking',5,'attiva',1,CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,frame,created_at) VALUES(4,'house','Edge Wagering','Casino bonus wagering calculator','https://toolsedge.cloud/igaming/edge-wagering',5,'attiva',1,CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,frame,created_at) VALUES(5,'house','Edge Rakeback','Casino rakeback calculator and comparison','https://toolsedge.cloud/igaming/edge-rakeback',5,'attiva',1,CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,frame,created_at) VALUES(6,'house','Edge DCA','Simulate a dollar-cost averaging strategy','https://toolsedge.cloud/crypto/edge-dca',5,'attiva',1,CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,frame,created_at) VALUES(7,'house','Edge Liquidation','Futures margin and liquidation price calculator','https://toolsedge.cloud/crypto/edge-liquidation',5,'attiva',1,CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,frame,created_at) VALUES(8,'house','Edge CEX Arbitrage','Scan price gaps between exchanges','https://toolsedge.cloud/crypto/edge-cex-arbitrage',5,'attiva',1,CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,frame,created_at) VALUES(9,'house','Edge DEX Arbitrage','Scan price gaps between liquidity pools','https://toolsedge.cloud/crypto/edge-dex-arbitrage',5,'attiva',1,CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,frame,created_at) VALUES(10,'house','Edge Surebet','Find sportsbook arbitrage opportunities','https://toolsedge.cloud/sports/edge-surebet',5,'attiva',1,CAST(strftime('%s','now') AS INTEGER)*1000)`,
 ], 3: [
   'ALTER TABLE users ADD COLUMN wd_hold INTEGER NOT NULL DEFAULT 0',
   'ALTER TABLE miners ADD COLUMN special TEXT',
@@ -255,16 +256,16 @@ const SCHEMA = [
   frame INTEGER NOT NULL DEFAULT 0, reject_reason TEXT, last_served_at INTEGER NOT NULL DEFAULT 0,
   ip TEXT, created_at INTEGER NOT NULL, decided_at INTEGER, decided_by INTEGER)`,
 `CREATE INDEX IF NOT EXISTS adv_serve ON adv_campaigns(status, kind, last_served_at)`,
-`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,created_at) VALUES(1,'house','ToolsEdge','Free crypto and iGaming calculators in one place','https://toolsedge.cloud/',5,'attiva',CAST(strftime('%s','now') AS INTEGER)*1000)`,
-`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,created_at) VALUES(2,'house','Edge Rates','Compare swap routes and rates across providers','https://toolsedge.cloud/crypto/edge-rates',5,'attiva',CAST(strftime('%s','now') AS INTEGER)*1000)`,
-`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,created_at) VALUES(3,'house','Edge Staking','Compare staking yields and APY before you stake','https://toolsedge.cloud/crypto/edge-staking',5,'attiva',CAST(strftime('%s','now') AS INTEGER)*1000)`,
-`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,created_at) VALUES(4,'house','Edge Wagering','Casino bonus wagering calculator','https://toolsedge.cloud/igaming/edge-wagering',5,'attiva',CAST(strftime('%s','now') AS INTEGER)*1000)`,
-`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,created_at) VALUES(5,'house','Edge Rakeback','Casino rakeback calculator and comparison','https://toolsedge.cloud/igaming/edge-rakeback',5,'attiva',CAST(strftime('%s','now') AS INTEGER)*1000)`,
-`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,created_at) VALUES(6,'house','Edge DCA','Simulate a dollar-cost averaging strategy','https://toolsedge.cloud/crypto/edge-dca',5,'attiva',CAST(strftime('%s','now') AS INTEGER)*1000)`,
-`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,created_at) VALUES(7,'house','Edge Liquidation','Futures margin and liquidation price calculator','https://toolsedge.cloud/crypto/edge-liquidation',5,'attiva',CAST(strftime('%s','now') AS INTEGER)*1000)`,
-`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,created_at) VALUES(8,'house','Edge CEX Arbitrage','Scan price gaps between exchanges','https://toolsedge.cloud/crypto/edge-cex-arbitrage',5,'attiva',CAST(strftime('%s','now') AS INTEGER)*1000)`,
-`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,created_at) VALUES(9,'house','Edge DEX Arbitrage','Scan price gaps between liquidity pools','https://toolsedge.cloud/crypto/edge-dex-arbitrage',5,'attiva',CAST(strftime('%s','now') AS INTEGER)*1000)`,
-`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,created_at) VALUES(10,'house','Edge Surebet','Find sportsbook arbitrage opportunities','https://toolsedge.cloud/sports/edge-surebet',5,'attiva',CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,frame,created_at) VALUES(1,'house','ToolsEdge','Free crypto and iGaming calculators in one place','https://toolsedge.cloud/',5,'attiva',1,CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,frame,created_at) VALUES(2,'house','Edge Rates','Compare swap routes and rates across providers','https://toolsedge.cloud/crypto/edge-rates',5,'attiva',1,CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,frame,created_at) VALUES(3,'house','Edge Staking','Compare staking yields and APY before you stake','https://toolsedge.cloud/crypto/edge-staking',5,'attiva',1,CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,frame,created_at) VALUES(4,'house','Edge Wagering','Casino bonus wagering calculator','https://toolsedge.cloud/igaming/edge-wagering',5,'attiva',1,CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,frame,created_at) VALUES(5,'house','Edge Rakeback','Casino rakeback calculator and comparison','https://toolsedge.cloud/igaming/edge-rakeback',5,'attiva',1,CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,frame,created_at) VALUES(6,'house','Edge DCA','Simulate a dollar-cost averaging strategy','https://toolsedge.cloud/crypto/edge-dca',5,'attiva',1,CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,frame,created_at) VALUES(7,'house','Edge Liquidation','Futures margin and liquidation price calculator','https://toolsedge.cloud/crypto/edge-liquidation',5,'attiva',1,CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,frame,created_at) VALUES(8,'house','Edge CEX Arbitrage','Scan price gaps between exchanges','https://toolsedge.cloud/crypto/edge-cex-arbitrage',5,'attiva',1,CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,frame,created_at) VALUES(9,'house','Edge DEX Arbitrage','Scan price gaps between liquidity pools','https://toolsedge.cloud/crypto/edge-dex-arbitrage',5,'attiva',1,CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,frame,created_at) VALUES(10,'house','Edge Surebet','Find sportsbook arbitrage opportunities','https://toolsedge.cloud/sports/edge-surebet',5,'attiva',1,CAST(strftime('%s','now') AS INTEGER)*1000)`,
 `CREATE TABLE IF NOT EXISTS accounts(
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   owner_id INTEGER REFERENCES users(id), system_code TEXT,

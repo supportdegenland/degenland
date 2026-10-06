@@ -124,6 +124,9 @@ nav.tabs button[aria-current="page"]{background:var(--sun);color:var(--ink)}
 .overlay.show{display:flex}
 .sheet{width:100%;max-width:520px;max-height:80%;overflow:auto;background:var(--panel);border:3px solid var(--ink);border-radius:24px;box-shadow:0 6px 0 var(--ink);padding:16px;margin-bottom:env(safe-area-inset-bottom,0px)}
 .adbox{text-align:center}
+.sheet.wide{max-width:min(1000px,96vw);max-height:94%}
+.sheet.wide .adframe{height:calc(92vh - 340px);min-height:220px;max-height:640px}
+.adbox .addone{display:table;margin:6px auto 0;background:var(--mint);color:var(--ink);font-weight:800;padding:4px 12px;border-radius:8px}
 .adframe{position:relative;height:min(46vh,340px);margin:10px 0;border:2px solid var(--ink);border-radius:12px;overflow:hidden;background:#fff}
 .adframe iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
 .adhost{font-size:13px;color:var(--muted);margin:2px 0 10px;word-break:break-all}
@@ -788,6 +791,7 @@ const I18N_EXACT = {
 'Annunci aggiornati':['Listings refreshed','Anuncios actualizados','Объявления обновлены'],
 'Energia finita: guarda un video per ricaricarla':['Out of energy: watch a video to refill it','Sin energía: mira un vídeo para recargarla','Энергия закончилась: посмотрите видео, чтобы восстановить её'],
 'Energia ricaricata':['Energy refilled','Energía recargada','Энергия восстановлена'],
+'Chiudi':['Close','Cerrar','Закрыть'],
 'Nessuna azione in sospeso.':['Nothing pending.','Nada pendiente.','Нет незавершённых действий.'],
 };
 
@@ -1209,7 +1213,7 @@ function renderRete(){
   
 }
 let sheetLocked=false;
-function openSheet(html,locked){ sheetLocked=!!locked; $('sheet').innerHTML=html; $('ov').classList.add('show'); }
+function openSheet(html,locked){ sheetLocked=!!locked; $('sheet').classList.remove('wide'); $('sheet').innerHTML=html; $('ov').classList.add('show'); }
 function closeSheet(force){ if(sheetLocked && force!==true) return; sheetLocked=false; $('ov').classList.remove('show'); }
 $('ov').addEventListener('click',e=>{ if(e.target.id==='ov') closeSheet(); });
 function minerSVGFor(id){ return minerSVG(id); }
@@ -1250,11 +1254,16 @@ function adFlow(purpose, art, doneMsg, after){
     const body = ad
       ? `<p class="small muted">Sponsor</p>${ad.frame?`<div class="adframe"><iframe src="${esc(ad.url)}" title="${esc(ad.title)}" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>`:`<div class="adart">${art}</div>`}<h3>${esc(ad.title)}</h3>${ad.descr?`<p class="muted">${esc(ad.descr)}</p>`:''}<p class="adhost">${esc(host)}</p><a class="btn cyan advisit" id="adVisit" href="${esc(ad.url)}" target="_blank" rel="noopener sponsored">Visita il sito</a><p class="muted" id="adc">${msg()}</p>${own}`
       : `<p class="small muted">Sponsor</p><div class="adart">${art}</div><h3>Il tuo annuncio qui</h3><p class="muted">Mostra il tuo progetto a tutti i giocatori di DegenLand.</p><p class="muted" id="adc">${msg()}</p>${own}`;
-    openSheet(`<div class="adbox">${body}</div>`,true);
+    openSheet(`<div class="adbox">${body}</div>`,true); if(ad && ad.frame) $('sheet').classList.add('wide');
     const v=$('adVisit'); if(v) v.addEventListener('click',()=>{ api('POST','/api/ad/click',{token:b.token}).catch(()=>{}); },{once:true});
     await new Promise(res=>{ const t=setInterval(()=>{ s--; if(s>0){ const c=$('adc'); if(c) c.textContent=msg(); return; } clearInterval(t); res(); },1000); });
-    try{ await api('POST', purpose==='farm'?'/api/farm/start':'/api/energy/recharge', {token:b.token}); } finally { closeSheet(true); }
-    await refresh(); toast(doneMsg); if(after) after();
+    let ok=false;
+    try{ await api('POST', purpose==='farm'?'/api/farm/start':'/api/energy/recharge', {token:b.token}); ok=true; } finally { if(!ok) closeSheet(true); }
+    // premio dato: la finestra resta aperta (si può continuare a guardare il sito) e si chiude a mano
+    sheetLocked=false; const c=$('adc');
+    if(c){ c.textContent=doneMsg; c.classList.add('addone'); c.insertAdjacentHTML('afterend','<button class="btn" id="adClose" style="width:100%;margin-top:6px">Chiudi</button>'); $('adClose').onclick=()=>closeSheet(true); }
+    else toast(doneMsg);
+    await refresh(); if(after) after();
   });
 }
 $('btnAd').onclick=()=>adFlow('farm','🛸','Farm avviata per 24 ore');

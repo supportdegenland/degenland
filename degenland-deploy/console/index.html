@@ -554,7 +554,7 @@ function advApprove(x){
         <label class="row small" style="gap:8px"><input type="checkbox" id="apConf"> Ho verificato a mano il pagamento</label><input class="f" id="apTx" placeholder="Firma della transazione (facoltativa)" style="width:100%;margin-top:8px">`)
     :`<p>Verranno scalati <b>${n0(x.tokens)} token</b> dal saldo di <b>${esc(x.nickname||'')}</b>. Se il saldo non basta, l'approvazione non va a buon fine.</p>`;
   openSheet(`<h3>Approva la campagna #${x.id}</h3><p><b>${esc(x.title)}</b><br><a href="${esc(x.url)}" target="_blank" rel="noopener noreferrer">${esc(x.url)}</a></p><p class="small muted">${n0(x.views_total)} view da ${x.seconds} s · prima di approvare apri il sito e controlla che sia sicuro.</p>${pay}
-    <label class="row small" style="gap:8px;margin-top:10px"><input type="checkbox" id="apFrame"> Mostra il sito in anteprima nell'annuncio (solo se si apre correttamente dentro una cornice)</label>
+    <label class="row small" style="gap:8px;margin-top:10px"><input type="checkbox" id="apFrame" checked> Anteprima navigabile del sito nell'annuncio (togli la spunta se il sito non si apre dentro una cornice)</label>
     <button class="btn mint" id="apGo" style="width:100%;margin-top:12px">Approva e metti in rotazione</button>`);
   $('apGo').onclick=()=>act(async()=>{ await api('POST','/api/admin/adv/'+x.id+'/approve',{frame:$('apFrame').checked,confirm:$('apConf')?$('apConf').checked:false,tx:$('apTx')?$('apTx').value:''}); closeSheet(); toast('Campagna approvata'); await renderAdv(); });
 }
