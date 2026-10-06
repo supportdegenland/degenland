@@ -246,11 +246,12 @@ nav.tabs button,input.f,select.f,textarea.f,.sheet{border:2px solid var(--edge);
     <div class="card">
       <h2>Parametri del gioco</h2>
       <p class="small muted">Ogni modifica viene salvata nel registro con autore e data. Le modifiche alle regole economiche valgono dalla prossima pool, per non cambiare le condizioni a chi sta già giocando.</p>
+      <div id="setPend"></div>
       <h3 style="margin-top:12px">Miner</h3>
       <div class="tbl"><table><thead><tr><th>Miner</th><th class="num">Prezzo (SOL)</th><th class="num">Rientro (blocchi)</th><th class="num">Guasto (blocchi)</th></tr></thead><tbody id="setMiners"></tbody></table></div>
       <h3 style="margin-top:14px">Economia</h3>
       <div class="set" id="setEco"></div>
-      <div class="row" style="margin-top:14px"><button class="btn mint" id="bSave">Salva per la prossima pool</button><span class="small muted" id="setNote"></span></div>
+      <div class="row" style="margin-top:14px"><button class="btn mint" id="bSave">Salva per la prossima pool</button><button class="btn" id="bNow">Salva e applica subito</button><span class="small muted" id="setNote"></span></div>
     </div>
     <div id="setExtra"></div>
   </section>
@@ -469,11 +470,17 @@ async function renderPool(){
 let PARAMS=null;
 const ECO=[['repair_pct','Riparazione (% del prezzo)',100],['scrap_max','Rottamazione massima (%)',100],['scrap_min','Rottamazione minima (%)',100],['break_from','Guasto da (% del rientro)',100],['break_to','Guasto fino a (% del rientro)',100],['referral_pct','Referral (% produzione)',100],['address_lock_hours','Blocco dopo cambio indirizzo (ore)',1],['market_min_pct','Mercato: minimo (% del listino)',100],['market_max_pct','Mercato: massimo (% del listino)',100],['tap_reward_milli','Estrazione: millesimi di token a tocco',1]];
 async function renderSet(){
-  const d=await api('GET','/api/admin/params'); PARAMS=d.current;
-  $('setMiners').innerHTML=PARAMS.miners.map((m,i)=>`<tr><td>${esc(m.name)}</td><td class="num"><input class="f" style="width:90px;text-align:right" type="number" step="0.005" value="${m.price_sol}" data-mp="${i}"></td><td class="num"><input class="f" style="width:90px;text-align:right" type="number" step="10" value="${m.payback}" data-mb="${i}"></td><td class="num small muted">${i===0?'mai':Math.round(m.payback*PARAMS.break_from)+'–'+Math.round(m.payback*PARAMS.break_to)}</td></tr>`).join('');
+  const d=await api('GET','/api/admin/params'); PARAMS=d.pending?d.pending.data:d.current; CURP=d.current;
+  $('setPend').innerHTML=d.pending
+    ? `<div class="card" style="border-color:var(--sun);margin:10px 0 0"><p style="margin:0"><span class="tag t-sun">Modifiche in attesa</span> Salvate il ${fmtD(d.pending.created_at)}: valgono dalla pool ${d.pool.number+1}. La pool ${d.pool.number} in corso usa ancora i valori precedenti (indicati accanto al nome come "ora").</p>${can.money()?`<div class="row" style="margin-top:8px;gap:8px"><button class="btn sm" id="bPendNow">Applica subito alla pool ${d.pool.number}</button><button class="btn sm ghost" id="bPendDrop">Annulla le modifiche in attesa</button></div>`:''}</div>`
+    : `<p class="small muted" style="margin:8px 0 0">Valori in uso nella pool ${d.pool.number}.</p>`;
+  if($('bPendNow')) $('bPendNow').onclick=()=>confirmNow(()=>api('POST','/api/admin/params/apply-pending',{}));
+  if($('bPendDrop')) $('bPendDrop').onclick=()=>act(async()=>{ await api('POST','/api/admin/params/discard-pending',{}); toast('Modifiche in attesa annullate'); await renderSet(); });
+  const was=(i,k,l)=>{ const c=CURP.miners[i]; return c && c[k]!==PARAMS.miners[i][k] ? `<br><span class="small muted">ora: ${l} ${c[k]}</span>` : ''; };
+  $('setMiners').innerHTML=PARAMS.miners.map((m,i)=>`<tr><td>${esc(m.name)}${was(i,'price_sol','')||was(i,'payback','')?' <span class="tag t-sun">modificato</span>':''}${was(i,'price_sol','prezzo')}${was(i,'payback','rientro')}</td><td class="num"><input class="f" style="width:90px;text-align:right" type="number" step="0.005" value="${m.price_sol}" data-mp="${i}"></td><td class="num"><input class="f" style="width:90px;text-align:right" type="number" step="10" value="${m.payback}" data-mb="${i}"></td><td class="num small muted">${i===0?'mai':Math.round(m.payback*PARAMS.break_from)+'–'+Math.round(m.payback*PARAMS.break_to)}</td></tr>`).join('');
   $('setEco').innerHTML=ECO.map(([k,l,mul])=>`<div><label class="l" for="eco_${k}">${l}</label><input class="f" id="eco_${k}" type="number" step="any" value="${+(PARAMS[k]*mul).toFixed(4)}" data-eco="${k}" data-mul="${mul}"></div>`).join('')+`<div><label class="l" for="eco_wmin">Prelievo minimo (SOL)</label><input class="f" id="eco_wmin" type="number" step="0.01" value="${PARAMS.withdraw_min_lamports/LAM}" data-wmin="1"></div>`;
   $('setNote').textContent=`Set attuale: ${d.sets[0]?esc(d.sets[0].label):'–'}`;
-  $('bSave').disabled=!can.money();
+  $('bSave').disabled=!can.money(); $('bNow').disabled=!can.money();
   const adm=can.money()?`<div class="card"><h3>Amministratori</h3><p class="small muted">Crea un accesso: la chiave e il codice per l'app di autenticazione vengono mostrati una sola volta.</p>
     <div class="row" style="margin-top:8px"><input class="f grow" id="adEmail" type="email" placeholder="Email"><input class="f" id="adName" placeholder="Nome" style="width:130px"><select class="f" id="adRole"><option value="operatore">Operatore</option><option value="supporto">Supporto</option><option value="sola_lettura">Sola lettura</option><option value="superadmin">Superadmin</option></select></div>
     <div class="row" style="margin-top:8px"><button class="btn" id="adGo">Crea accesso</button></div></div>`:'';
@@ -481,13 +488,19 @@ async function renderSet(){
   if($('adGo')) $('adGo').onclick=()=>act(async()=>{ const r=await api('POST','/api/admin/admins',{email:$('adEmail').value,name:$('adName').value,role:$('adRole').value});
     openSheet(`<h3>Accesso creato: ${esc(r.email)}</h3><p class="small muted">Salvali ora: non verranno più mostrati.</p><div class="kv"><span>Chiave d'accesso</span></div><input class="f" style="width:100%" readonly value="${esc(r.access_key)}"><div class="kv"><span>Segreto per l'app di autenticazione</span></div><input class="f" style="width:100%" readonly value="${esc(r.totp_secret)}">`); });
 }
-$('bSave').onclick=()=>act(async()=>{ const data={}; const miners=PARAMS.miners.map(m=>({...m}));
+function collectParams(){ const data={}; const miners=PARAMS.miners.map(m=>({...m}));
   document.querySelectorAll('[data-mp]').forEach(x=>miners[x.dataset.mp].price_sol=+x.value); document.querySelectorAll('[data-mb]').forEach(x=>miners[x.dataset.mb].payback=+x.value); data.miners=miners;
   document.querySelectorAll('[data-eco]').forEach(x=>{ data[x.dataset.eco]=+x.value/+x.dataset.mul; }); const w=document.querySelector('[data-wmin]'); if(w) data.withdraw_min_lamports=Math.round(+w.value*LAM);
-  await api('POST','/api/admin/params',{label:'Modifica '+new Date().toLocaleDateString('it-IT'),data}); toast('Parametri salvati per la prossima pool'); await renderAll(); });
+  return data; }
+function confirmNow(run){
+  openSheet(`<h3>Applicare subito?</h3><p>I nuovi valori entrano in vigore adesso nella pool in corso: cambiano subito prezzi in negozio, produzione e durata dei miner anche per chi li ha già. Prima del lancio va bene; a gioco avviato i Termini prevedono che le modifiche economiche valgano dalla pool successiva.</p><button class="btn red" id="nowGo" style="width:100%">Applica subito</button>`);
+  $('nowGo').onclick=()=>act(async()=>{ await run(); closeSheet(); toast('Parametri applicati subito'); await renderAll(); await renderSet(); });
+}
+$('bSave').onclick=()=>act(async()=>{ await api('POST','/api/admin/params',{label:'Modifica '+new Date().toLocaleDateString('it-IT'),data:collectParams()}); toast('Salvati: valgono dalla prossima pool'); await renderAll(); await renderSet(); });
+$('bNow').onclick=()=>{ const data=collectParams(); confirmNow(()=>api('POST','/api/admin/params',{label:'Modifica immediata '+new Date().toLocaleDateString('it-IT'),data,apply_now:true})); };
 
 /* ---------- registro ---------- */
-async function renderLog(){ const d=await api('GET','/api/admin/audit'); const LB={esegui_prelievo:'Prelievo eseguito',rifiuta_prelievo:'Prelievo rifiutato',sospendi_utente:'Utente sospeso',riattiva_utente:'Utente riattivato',nota_utente:'Nota su un utente',modifica_parametri:'Parametri modificati',crea_admin:'Amministratore creato',login_admin:'Accesso alla console',cambio_manuale:'Cambio impostato a mano',chiusura_forzata:'Pool chiusa manualmente',assegna_deposito:'Deposito assegnato',rettifica_saldo:'Saldo rettificato'};
+async function renderLog(){ const d=await api('GET','/api/admin/audit'); const LB={esegui_prelievo:'Prelievo eseguito',rifiuta_prelievo:'Prelievo rifiutato',sospendi_utente:'Utente sospeso',riattiva_utente:'Utente riattivato',nota_utente:'Nota su un utente',modifica_parametri:'Parametri modificati (dalla prossima pool)',parametri_subito:'Parametri applicati subito',parametri_annullati:'Modifiche ai parametri annullate',crea_admin:'Amministratore creato',login_admin:'Accesso alla console',cambio_manuale:'Cambio impostato a mano',chiusura_forzata:'Pool chiusa manualmente',assegna_deposito:'Deposito assegnato',rettifica_saldo:'Saldo rettificato'};
   $('logBody').innerHTML=d.audit.map(l=>`<div><span class="muted">${fmtD(l.created_at)} · ${esc(l.name||'sistema')}</span><br>${LB[l.action]||esc(l.action)}${l.target_id?` · #${l.target_id}`:''}${l.after?` <span class="small muted">${esc(String(l.after).slice(0,120))}</span>`:''}</div>`).join('')||'<p class="small muted">Nessuna attività.</p>'; }
 
 /* ---------- pionieri, IP condivisi, connessioni autorizzate ---------- */
@@ -514,7 +527,7 @@ $('ov').addEventListener('click',e=>{ if(e.target.id==='ov') closeSheet(); }); d
 let TAB='dash';
 
 /* ---------- Advertise Center ---------- */
-let ADV=[], ADVF='in_attesa';
+let ADV=[], ADVF='in_attesa', CURP=null;
 const ADVS={in_attesa:['In attesa','t-sun'],attiva:['Attiva','t-mint'],in_pausa:['In pausa','t-grey'],completata:['Completata','t-cyan'],rifiutata:['Rifiutata','t-red']};
 const hostOf=u=>{ try{ return new URL(u).hostname.replace(/^www\./,''); }catch(e){ return u; } };
 async function renderAdv(){

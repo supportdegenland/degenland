@@ -1737,17 +1737,44 @@ async function adminPool(ctx) {
     seasons: await dbAll(db, "SELECT p.number, p.status, p.blocks, p.halvings, p.scrap_pct, p.opened_at, p.closed_at, (SELECT COALESCE(SUM(credit_milli),0) FROM scrap_credits s WHERE s.pool_id=p.id) scrap_milli FROM pools p ORDER BY p.id DESC LIMIT 12"),
     snapshots: await dbAll(db, 'SELECT * FROM treasury_snapshots ORDER BY day DESC LIMIT 60'), treasury: await dbAll(db, 'SELECT * FROM treasury_movements ORDER BY id DESC LIMIT 30') };
 }
+async function pendingParams(db) {
+  const n = await dbOne(db, "SELECT value FROM meta WHERE key='next_param_set'"); if (!n) return null;
+  const r = await dbOne(db, 'SELECT id,label,data,created_at FROM param_sets WHERE id=?', +n.value); if (!r) return null;
+  return { id: r.id, label: r.label, created_at: r.created_at, data: Object.assign({}, DEFAULT_PARAMS, JSON.parse(r.data)) };
+}
+async function adminGetParams(ctx) {
+  const pool = await currentPool(ctx.env);
+  return { current: await getParams(ctx.env, pool.param_set_id), pending: await pendingParams(ctx.db), pool: { id: pool.id, number: pool.number, param_set_id: pool.param_set_id },
+    sets: await dbAll(ctx.db, 'SELECT id,label,created_at FROM param_sets ORDER BY id DESC LIMIT 20') };
+}
 async function adminSetParams(ctx, body) {
-  const db = ctx.db, a = ctx.admin; const cur = await getParams(ctx.env);
-  const data = Object.assign({}, cur, body.data || {});
+  // le modifiche partono dai parametri già in attesa (se ci sono), così due salvataggi di fila non si annullano
+  const db = ctx.db, a = ctx.admin; const pool = await currentPool(ctx.env); const pend = await pendingParams(db);
+  const cur = pend ? pend.data : await getParams(ctx.env, pool.param_set_id);
+  const data = Object.assign({}, cur, body.data || {}); const now = !!body.apply_now;
   if (!Array.isArray(data.miners) || data.miners.length !== 6) throw bad('invalid_miners');
   for (const m of data.miners) if (!(m.price_sol > 0) || !(m.payback > 0)) throw bad('invalid_miners');
   if (!(data.repair_pct >= 0 && data.repair_pct <= 1) || !(data.scrap_max >= data.scrap_min && data.scrap_max <= 1) || !(data.referral_pct >= 0 && data.referral_pct <= 0.5)) throw bad('invalid_params');
   if (!Array.isArray(data.halving_blocks) || data.halving_blocks.length !== 3 || data.close_blocks <= data.halving_blocks[2]) throw bad('invalid_halvings');
   const t = NOW();
-  await db.batch([st(db, 'INSERT INTO param_sets(label,data,created_by,created_at) VALUES(?,?,?,?)', String(body.label || 'Parametri').slice(0, 80), JSON.stringify(data), a.id, t),
-    st(db, "INSERT OR REPLACE INTO meta(key,value) VALUES('next_param_set',(SELECT MAX(id) FROM param_sets))"), auditStmt(db, a.id, 'modifica_parametri', 'param_sets', null, null, { label: body.label }, ctx.ip)]);
-  return { ok: true, applies_from: 'prossima pool' };
+  const s = [st(db, 'INSERT INTO param_sets(label,data,created_by,created_at) VALUES(?,?,?,?)', String(body.label || 'Parametri').slice(0, 80), JSON.stringify(data), a.id, t)];
+  if (now) s.push(st(db, 'UPDATE pools SET param_set_id=(SELECT MAX(id) FROM param_sets) WHERE id=?', pool.id), st(db, "DELETE FROM meta WHERE key='next_param_set'"));
+  else s.push(st(db, "INSERT OR REPLACE INTO meta(key,value) VALUES('next_param_set',(SELECT MAX(id) FROM param_sets))"));
+  s.push(auditStmt(db, a.id, now ? 'parametri_subito' : 'modifica_parametri', 'param_sets', null, null, { label: body.label, pool: now ? pool.number : 'prossima' }, ctx.ip));
+  await db.batch(s); invalidateCaches();
+  return { ok: true, applies_from: now ? 'subito' : 'prossima pool' };
+}
+async function adminApplyPending(ctx) {
+  const db = ctx.db, pend = await pendingParams(db); if (!pend) throw notfound('no_pending', 'Nessuna modifica in attesa');
+  const pool = await currentPool(ctx.env);
+  await db.batch([st(db, 'UPDATE pools SET param_set_id=? WHERE id=?', pend.id, pool.id), st(db, "DELETE FROM meta WHERE key='next_param_set'"),
+    auditStmt(db, ctx.admin.id, 'parametri_subito', 'param_sets', pend.id, null, { label: pend.label, pool: pool.number }, ctx.ip)]);
+  invalidateCaches(); return {};
+}
+async function adminDiscardPending(ctx) {
+  const db = ctx.db, pend = await pendingParams(db); if (!pend) throw notfound('no_pending', 'Nessuna modifica in attesa');
+  await db.batch([st(db, "DELETE FROM meta WHERE key='next_param_set'"), auditStmt(db, ctx.admin.id, 'parametri_annullati', 'param_sets', pend.id, null, { label: pend.label }, ctx.ip)]);
+  return {};
 }
 async function adminTreasury(ctx, body) {
   const db = ctx.db, a = ctx.admin; const kind = body.kind; const lam = Math.floor(+body.lamports);
@@ -1854,8 +1881,10 @@ const ROUTES = [
   P('GET', '/api/admin/leaderboard', c => adminLeaderboard(c, c.url), 'admin'),
   P('GET', '/api/admin/team', c => adminTeamInfo(c), 'admin'),
   P('POST', '/api/admin/team/email', (c, b) => adminTeamEmail(c, b), 'admin', ADMIN_ROLES.money),
-  P('GET', '/api/admin/params', async c => { const pool = await currentPool(c.env); return { current: await getParams(c.env, pool.param_set_id), sets: await dbAll(c.db, 'SELECT id,label,created_at FROM param_sets ORDER BY id DESC LIMIT 20') }; }, 'admin'),
+  P('GET', '/api/admin/params', c => adminGetParams(c), 'admin'),
   P('POST', '/api/admin/params', (c, b) => adminSetParams(c, b), 'admin', ADMIN_ROLES.money),
+  P('POST', '/api/admin/params/apply-pending', (c) => adminApplyPending(c), 'admin', ADMIN_ROLES.money),
+  P('POST', '/api/admin/params/discard-pending', (c) => adminDiscardPending(c), 'admin', ADMIN_ROLES.money),
   P('POST', '/api/admin/treasury', (c, b) => adminTreasury(c, b), 'admin', ADMIN_ROLES.money),
   P('GET', '/api/admin/deposits', c => adminDeposits(c, c.url), 'admin'),
   P('POST', '/api/admin/deposits/:id/assign', (c, b) => adminAssignDeposit(c, +c.params.id, b), 'admin', ADMIN_ROLES.money),
