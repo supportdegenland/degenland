@@ -7,10 +7,13 @@
   // link speciale ?preview=CHIAVE (entra) o ?preview=off (esci)
   try{
     var q = new URLSearchParams(location.search).get('preview');
-    if(q === 'off') LS('dl_preview', null);
+    if(q === 'off'){ LS('dl_preview', null); try{ sessionStorage.removeItem('dl_pv_show'); }catch(e){} }
+    else if(q === 'show'){ try{ sessionStorage.setItem('dl_pv_show','1'); }catch(e){} }
     else if(q) LS('dl_preview', q);
   }catch(e){}
-  var gated = C.preview === true && LS('dl_preview') !== C.previewKey;
+  // ?preview=show forza la schermata (utile sulla versione test); vale finché la scheda resta aperta
+  var forced = false; try{ forced = sessionStorage.getItem('dl_pv_show') === '1'; }catch(e){}
+  var gated = forced || (C.preview === true && LS('dl_preview') !== C.previewKey);
 
   function wireSocial(){
     var a = d.querySelectorAll('[data-social]');
@@ -21,10 +24,10 @@
   if(!gated) return;
 
   var TX = {
-    en:{t:'Coming soon', p:'A pixel-art mining game in a neon city. The first 100 players get a free Pioneer miner: follow our channels to know when the doors open.', f:'Adults only. A simulation game, not an investment.', j:'Follow DegenLand'},
-    es:{t:'Próximamente', p:'Un juego de minería en pixel art en una ciudad de neón. Los primeros 100 jugadores reciben gratis un minero Pionero: sigue nuestros canales para saber cuándo abrimos.', f:'Solo para mayores de edad. Un juego de simulación, no una inversión.', j:'Sigue a DegenLand'},
-    ru:{t:'Скоро запуск', p:'Майнинг-игра в стиле пиксель-арт в неоновом городе. Первые 100 игроков бесплатно получат майнер Пионера: следи за нашими каналами, чтобы не пропустить открытие.', f:'Только для совершеннолетних. Игра-симулятор, а не инвестиция.', j:'Следи за DegenLand'},
-    it:{t:'In arrivo', p:'Un gioco di mining in pixel art in una città al neon. I primi 100 giocatori ricevono gratis un miner Pioniere: segui i nostri canali per sapere quando apriamo.', f:'Solo per maggiorenni. Un gioco di simulazione, non un investimento.', j:'Segui DegenLand'}
+    en:{t:'Coming soon', p:'A pixel-art mining game in a neon city. The first 100 players get a free Pioneer miner: follow our channels to know when the doors open.', f:'Adults only. A simulation game, not an investment.', j:'Follow DegenLand', c:'Launch in', u:['h','m','s'], z:'Opening any minute now'},
+    es:{t:'Próximamente', p:'Un juego de minería en pixel art en una ciudad de neón. Los primeros 100 jugadores reciben gratis un minero Pionero: sigue nuestros canales para saber cuándo abrimos.', f:'Solo para mayores de edad. Un juego de simulación, no una inversión.', j:'Sigue a DegenLand', c:'Lanzamiento en', u:['h','m','s'], z:'Abrimos en unos instantes'},
+    ru:{t:'Скоро запуск', p:'Майнинг-игра в стиле пиксель-арт в неоновом городе. Первые 100 игроков бесплатно получат майнер Пионера: следи за нашими каналами, чтобы не пропустить открытие.', f:'Только для совершеннолетних. Игра-симулятор, а не инвестиция.', j:'Следи за DegenLand', c:'До запуска', u:['ч','м','с'], z:'Открываемся с минуты на минуту'},
+    it:{t:'In arrivo', p:'Un gioco di mining in pixel art in una città al neon. I primi 100 giocatori ricevono gratis un miner Pioniere: segui i nostri canali per sapere quando apriamo.', f:'Solo per maggiorenni. Un gioco di simulazione, non un investimento.', j:'Segui DegenLand', c:'Lancio tra', u:['h','m','s'], z:'Apriamo a momenti'}
   };
   var LANGS = ['en','es','ru','it'];
   function pickLang(){
@@ -59,6 +62,14 @@
     '#dl-preview .pv-lang{display:flex;gap:6px;justify-content:center;margin:0 0 18px}' +
     '#dl-preview .pv-lang button{font:600 13px "Chakra Petch",system-ui,sans-serif;background:transparent;color:#B9B2DD;border:2px solid #3A2D7A;padding:5px 10px;cursor:pointer}' +
     '#dl-preview .pv-lang button[aria-pressed="true"]{background:#00F0FF;color:#05030F;border-color:#00F0FF}' +
+    '#dl-preview .pv-cd{margin:0 0 26px}' +
+    '#dl-preview .pv-cl{font-size:14px;font-weight:600;color:#B9B2DD;margin:0 0 10px}' +
+    '#dl-preview .pv-clock{display:flex;justify-content:center;gap:10px}' +
+    '#dl-preview .pv-u{min-width:84px;padding:12px 10px 10px;background:#05030F;border:2px solid #00F0FF;box-shadow:4px 4px 0 #FF2E88}' +
+    '#dl-preview .pv-u b{display:block;font-family:"Press Start 2P",ui-monospace,monospace;font-weight:400;font-size:clamp(20px,6vw,30px);line-height:1;color:#F4F2FF;font-variant-numeric:tabular-nums}' +
+    '#dl-preview .pv-u span{display:block;margin-top:8px;font-size:13px;font-weight:700;color:#00F0FF}' +
+    '#dl-preview .pv-z{font-family:"Press Start 2P",ui-monospace,monospace;font-size:14px;line-height:1.6;color:#39FF88}' +
+    '@media (max-width:380px){#dl-preview .pv-u{min-width:72px}}' +
     '#dl-preview .pv-f{font-size:12px;color:#8F88B8;margin:0}';
   (d.head || root).appendChild(css);
 
@@ -71,13 +82,31 @@
     var t = TX[lang], box = d.getElementById('dl-preview');
     if(!box){ box = d.createElement('div'); box.id = 'dl-preview'; box.setAttribute('role','main'); d.body.appendChild(box); }
     var langs = LANGS.map(function(l){ return '<button type="button" data-l="'+l+'" aria-pressed="'+(l===lang)+'">'+l.toUpperCase()+'</button>'; }).join('');
-    box.innerHTML = '<div class="pv-in"><div class="pv-art" aria-hidden="true"></div><h1>DegenLand</h1><p class="pv-t">'+t.t+'</p><p class="pv-p">'+t.p+'</p>' +
+    box.innerHTML = '<div class="pv-in"><div class="pv-art" aria-hidden="true"></div><h1>DegenLand</h1><p class="pv-t">'+t.t+'</p>' + clockHtml(t) + '<p class="pv-p">'+t.p+'</p>' +
       (socials() ? '<p class="pv-j">'+t.j+'</p><div class="pv-soc">'+socials()+'</div>' : '') +
       '<div class="pv-lang" role="group" aria-label="Language">'+langs+'</div><p class="pv-f">'+t.f+'</p></div>';
     root.lang = lang; d.title = 'DegenLand · ' + t.t;
     var bs = box.querySelectorAll('[data-l]');
     for(var i=0;i<bs.length;i++) bs[i].onclick = function(){ lang = this.getAttribute('data-l'); LS('degenland_lang', lang); render(); };
-    art();
+    art(); tick();
+  }
+  // conto alla rovescia: ore totali (anche oltre le 24), minuti, secondi
+  var LAUNCH = C.launchAt ? Date.parse(C.launchAt) : NaN, timer = null;
+  function clockHtml(t){
+    if(isNaN(LAUNCH)) return '';
+    return '<div class="pv-cd" role="timer" aria-live="off"><p class="pv-cl">'+t.c+'</p><div class="pv-clock">' +
+      '<div class="pv-u"><b data-k="h">00</b><span>'+t.u[0]+'</span></div>' +
+      '<div class="pv-u"><b data-k="m">00</b><span>'+t.u[1]+'</span></div>' +
+      '<div class="pv-u"><b data-k="s">00</b><span>'+t.u[2]+'</span></div></div></div>';
+  }
+  function tick(){
+    var box = d.querySelector('#dl-preview .pv-cd'); if(!box) return;
+    var left = Math.max(0, Math.floor((LAUNCH - Date.now()) / 1000));
+    if(left <= 0){ box.innerHTML = '<p class="pv-z">'+TX[lang].z+'</p>'; clearTimeout(timer); return; }
+    var p2 = function(n){ return n < 10 ? '0'+n : ''+n; };
+    var v = { h: p2(Math.floor(left/3600)), m: p2(Math.floor(left%3600/60)), s: p2(left%60) };
+    var bs = box.querySelectorAll('[data-k]'); for(var i=0;i<bs.length;i++) bs[i].textContent = v[bs[i].getAttribute('data-k')];
+    clearTimeout(timer); timer = setTimeout(tick, 1000 - Date.now() % 1000 + 5);
   }
   function art(){
     var el = d.querySelector('#dl-preview .pv-art'); if(!el) return;

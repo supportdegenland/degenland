@@ -27,6 +27,7 @@ header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:fl
 nav.tabs{display:flex;gap:6px;overflow-x:auto;padding:4px 0 10px;scrollbar-width:none}
 nav.tabs button{flex:none;border:3px solid var(--ink);border-radius:12px;background:var(--panel);padding:6px 12px;font-weight:800;box-shadow:0 3px 0 var(--ink);white-space:nowrap}
 nav.tabs button[aria-current="page"]{background:var(--sun);color:var(--ink)}
+#advBox a,#sheet a{color:var(--cyan)}
 nav.tabs .n{display:inline-block;min-width:20px;padding:0 6px;margin-left:6px;border-radius:10px;background:var(--pink);color:#fff;border:2px solid var(--ink);font-size:12px;line-height:16px}
 .card{background:var(--panel);border:3px solid var(--ink);border-radius:18px;box-shadow:0 4px 0 var(--ink);padding:14px;margin:12px 0}
 h2{font-family:"Press Start 2P",system-ui,sans-serif;font-weight:400;font-size:18px;margin:4px 0 8px;text-shadow:2px 2px 0 var(--ink)}
@@ -128,6 +129,7 @@ nav.tabs button,input.f,select.f,textarea.f,.sheet{border:2px solid var(--edge);
     <button data-t="users">👥 Utenti</button>
       <button data-t="pio">⭐ Pionieri</button>
     <button data-t="pool">🛰️ Pool</button>
+    <button data-t="adv">📣 Pubblicità<span class="n" id="nAdv">0</span></button>
     <button data-t="set">⚙️ Parametri</button>
     <button data-t="log">📜 Registro</button>
   </nav>
@@ -238,6 +240,7 @@ nav.tabs button,input.f,select.f,textarea.f,.sheet{border:2px solid var(--edge);
     <div id="poolExtra" class="grid2"></div>
   </section>
   <section id="t-pio" hidden><div id="pioBox"></div></section>
+  <section id="t-adv" hidden><div id="advBox"></div></section>
   <!-- PARAMETRI -->
   <section id="t-set" hidden>
     <div class="card">
@@ -281,7 +284,7 @@ const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;'
 const short=a=>a?a.slice(0,4)+'…'+a.slice(-4):'';
 function toast(t){ const el=$('toast'); el.textContent=t; el.classList.add('show'); clearTimeout(toast.t); toast.t=setTimeout(()=>el.classList.remove('show'),2800); }
 const FLAG={pioniere:'Pioniere',account_nuovo:'Account nuovo',solo_miner_gratuito:'Solo miner gratuito',ip_condiviso:'IP condiviso',indirizzo_condiviso:'Indirizzo condiviso',indirizzo_recente:'Indirizzo cambiato da poco',referral_stesso_ip:'Referral con stesso IP',prelievi_alti:'Prelievi alti rispetto alla spesa',senza_conferma_telegram:'Senza conferma Telegram'};
-const ERRT={bad_credentials:'Credenziali non valide',rate_limited:'Troppi tentativi: riprova tra qualche minuto',forbidden:'Non hai il permesso',role_not_allowed:'Permesso insufficiente per questa azione',read_only:'Account in sola lettura',withdrawal_not_found:'Richiesta non più in attesa',reason_required:'Serve un motivo',invalid_params:'Parametri non validi',invalid_miners:'Miner non validi',invalid_halvings:'Soglie di halving non valide',invalid_amount:'Importo non valido',invalid_asset:'Valuta non valida',already_bootstrapped:'Già configurato',identity_in_use:'Questa email appartiene già a un altro account',invalid_email:'Email non valida',user_not_found:'Utente non trovato',dev_account_protected:'Account del team protetto'};
+const ERRT={adv_unpaid:'Pagamento non trovato: verifica a mano e spunta la conferma',adv_not_found:'Richiesta non più in attesa',reason_required:'Indica il motivo',insufficient_funds:'Saldo token dell\'utente insufficiente',bad_credentials:'Credenziali non valide',rate_limited:'Troppi tentativi: riprova tra qualche minuto',forbidden:'Non hai il permesso',role_not_allowed:'Permesso insufficiente per questa azione',read_only:'Account in sola lettura',withdrawal_not_found:'Richiesta non più in attesa',reason_required:'Serve un motivo',invalid_params:'Parametri non validi',invalid_miners:'Miner non validi',invalid_halvings:'Soglie di halving non valide',invalid_amount:'Importo non valido',invalid_asset:'Valuta non valida',already_bootstrapped:'Già configurato',identity_in_use:'Questa email appartiene già a un altro account',invalid_email:'Email non valida',user_not_found:'Utente non trovato',dev_account_protected:'Account del team protetto'};
 let ME=null;
 async function api(method,path,body,extra){
   const res=await fetch(path,{method,headers:Object.assign({'Content-Type':'application/json','X-DL':'1'},extra||{}),credentials:'same-origin',body:method==='GET'?undefined:JSON.stringify(body||{})});
@@ -328,6 +331,7 @@ async function renderDash(){
   if(q.pending) todo.push(`<span class="tag t-sun">Prelievi</span> ${q.pending} da eseguire (${n3(sol(q.lamports))} SOL), di cui ${q.flagged} segnalate`);
   if(DASH.unmatched_deposits) todo.push(`<span class="tag t-pink">Depositi</span> ${DASH.unmatched_deposits} non abbinati da assegnare`);
   if(H.coverage<2) todo.push('<span class="tag t-cyan">Pool</span> copertura sotto 2×: la rottamazione prevista scende');
+  try{ const A=await api('GET','/api/admin/adv?status=in_attesa'); const na=A.counts.in_attesa||0; $('nAdv').textContent=na; if(na) todo.push(`<span class="tag t-cyan">Pubblicità</span> ${na} richieste da controllare`); }catch(e){}
   if(!todo.length) todo.push('Nessuna azione in sospeso.');
   $('todo').innerHTML=todo.map(t=>`<div class="kv" style="justify-content:flex-start">${t}</div>`).join('');
   $('nWd').textContent=q.pending;
@@ -508,8 +512,59 @@ function openSheet(html,bind){ $('sheet').innerHTML=html+'<button class="btn gho
 function closeSheet(){ $('ov').classList.remove('show'); }
 $('ov').addEventListener('click',e=>{ if(e.target.id==='ov') closeSheet(); }); document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeSheet(); });
 let TAB='dash';
-function show(t){ TAB=t; ['dash','wd','users','pio','pool','set','log'].forEach(x=>$('t-'+x).hidden=x!==t); document.querySelectorAll('nav.tabs button').forEach(b=>{ if(b.dataset.t===t) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current'); }); act(()=>renderTab(t)); }
-async function renderTab(t){ return ({dash:renderDash,wd:renderWd,users:renderUsers,pio:renderPio,pool:renderPool,set:renderSet,log:renderLog})[t](); }
+
+/* ---------- Advertise Center ---------- */
+let ADV=[], ADVF='in_attesa';
+const ADVS={in_attesa:['In attesa','t-sun'],attiva:['Attiva','t-mint'],in_pausa:['In pausa','t-grey'],completata:['Completata','t-cyan'],rifiutata:['Rifiutata','t-red']};
+const hostOf=u=>{ try{ return new URL(u).hostname.replace(/^www\./,''); }catch(e){ return u; } };
+async function renderAdv(){
+  const d=await api('GET','/api/admin/adv?status='+ADVF); ADV=d.campaigns; const c=d.counts||{};
+  $('nAdv').textContent=c.in_attesa||0;
+  const opt=[['in_attesa','Da controllare'],['attiva','Attive'],['in_pausa','In pausa'],['completata','Completate'],['rifiutata','Rifiutate'],['tutte','Tutte le pagate'],['house','Segnaposto ToolsEdge']];
+  const row=x=>{
+    const st=ADVS[x.status]||[x.status,'t-grey'];
+    const pay=x.kind==='house'?'<span class="small muted">Della casa</span>':x.pay_method==='SOL'?`<b>${esc(x.sol)}</b> SOL<br><span class="small muted">$${Number(x.price_usd).toFixed(2)}</span>`:`<b>${n0(x.tokens)}</b> token<br><span class="small muted">${x.nickname?`<button class="btn sm ghost" data-user="${x.user_id}">${esc(x.nickname)}</button>`:''}</span>`;
+    const seen=x.status==='in_attesa'&&x.pay_method==='SOL'?(x.payment?'<span class="tag t-mint">Pagamento ricevuto</span>':'<span class="tag t-sun">Pagamento non ancora visto</span>'):'';
+    const prog=x.kind==='house'?`${n0(x.views_done)} view`:`${n0(x.views_done)} / ${n0(x.views_total)}`;
+    let a='';
+    if(can.wd()){
+      if(x.status==='in_attesa') a=`<button class="btn sm mint" data-aok="${x.id}">Approva</button> <button class="btn sm ghost" data-ano="${x.id}">Rifiuta</button>`;
+      else if(x.status==='attiva') a=`<button class="btn sm ghost" data-aset="${x.id}" data-v="pause">Pausa</button>`;
+      else if(x.status==='in_pausa') a=`<button class="btn sm ghost" data-aset="${x.id}" data-v="resume">Riprendi</button>`;
+      if(['attiva','in_pausa'].includes(x.status)) a+=` <button class="btn sm ghost" data-aset="${x.id}" data-v="${x.frame?'frame_off':'frame_on'}">${x.frame?'Togli anteprima':'Mostra anteprima'}</button>`;
+    }
+    return `<tr><td>#${x.id}</td><td><b>${esc(x.title)}</b>${x.descr?`<br><span class="small muted">${esc(x.descr)}</span>`:''}<br><a class="small" href="${esc(x.url)}" target="_blank" rel="noopener noreferrer">${esc(hostOf(x.url))}</a></td>
+      <td class="num">${n0(x.views_total||0)}<br><span class="small muted">${x.seconds} s</span></td><td class="num">${pay}</td>
+      <td><span class="tag ${st[1]}">${st[0]}</span>${x.frame?' <span class="tag t-cyan">Anteprima</span>':''} ${seen}<br><span class="small muted">${prog} · ${n0(x.clicks)} clic</span>${x.contact?`<br><span class="small">${esc(x.contact)}</span>`:''}${x.payer_wallet?`<br><span class="small muted">da ${esc(short(x.payer_wallet))}</span>`:''}${x.reject_reason?`<br><span class="small muted">${esc(x.reject_reason)}</span>`:''}</td>
+      <td class="small muted">${fmtD(x.created_at)}</td><td>${a}</td></tr>`;
+  };
+  $('advBox').innerHTML=`<div class="card"><div class="row" style="justify-content:space-between;flex-wrap:wrap;gap:8px"><div><h3>Advertise Center</h3><p class="small muted">Le campagne approvate entrano a rotazione negli annunci del gioco. Senza campagne pagate attive girano i segnaposto ToolsEdge. Ricavi in SOL: all'approvazione entrano nella pool.</p></div>
+    <select class="f" id="advF" aria-label="Filtra campagne">${opt.map(([k,l])=>`<option value="${k}" ${k===ADVF?'selected':''}>${l}${c[k]?` (${c[k]})`:''}</option>`).join('')}</select></div>
+    <div class="tw" style="margin-top:8px"><table><thead><tr><th>#</th><th>Annuncio</th><th class="num">Pacchetto</th><th class="num">Pagamento</th><th>Stato</th><th>Data</th><th></th></tr></thead><tbody>${ADV.length?ADV.map(row).join(''):'<tr><td colspan="7" class="muted">Nessuna campagna in questo elenco.</td></tr>'}</tbody></table></div></div>`;
+  $('advF').onchange=e=>{ ADVF=e.target.value; act(renderAdv); };
+  document.querySelectorAll('[data-aok]').forEach(b=>b.onclick=()=>advApprove(ADV.find(x=>x.id==b.dataset.aok)));
+  document.querySelectorAll('[data-ano]').forEach(b=>b.onclick=()=>advReject(ADV.find(x=>x.id==b.dataset.ano)));
+  document.querySelectorAll('[data-aset]').forEach(b=>b.onclick=()=>act(async()=>{ await api('POST','/api/admin/adv/'+b.dataset.aset+'/set',{action:b.dataset.v}); toast('Campagna aggiornata'); await renderAdv(); }));
+  document.querySelectorAll('#advBox [data-user]').forEach(b=>b.onclick=()=>openUser(+b.dataset.user));
+}
+function advApprove(x){
+  const sol=x.pay_method==='SOL';
+  const pay=sol?(x.payment?`<p><span class="tag t-mint">Pagamento ricevuto</span> ${esc(x.sol)} SOL da ${esc(short(x.payment.sender))}<br><span class="small muted">${esc(x.payment.signature)}</span></p><p class="small muted">All'approvazione l'importo entra nella pool come ricavo pubblicitario.</p>`
+      :`<p><span class="tag t-sun">Pagamento non ancora visto</span> Il sistema cerca un deposito di esattamente <b>${esc(x.sol)} SOL</b>. Se l'hai verificato a mano (per esempio importo sbagliato), conferma qui sotto.</p>
+        <label class="row small" style="gap:8px"><input type="checkbox" id="apConf"> Ho verificato a mano il pagamento</label><input class="f" id="apTx" placeholder="Firma della transazione (facoltativa)" style="width:100%;margin-top:8px">`)
+    :`<p>Verranno scalati <b>${n0(x.tokens)} token</b> dal saldo di <b>${esc(x.nickname||'')}</b>. Se il saldo non basta, l'approvazione non va a buon fine.</p>`;
+  openSheet(`<h3>Approva la campagna #${x.id}</h3><p><b>${esc(x.title)}</b><br><a href="${esc(x.url)}" target="_blank" rel="noopener noreferrer">${esc(x.url)}</a></p><p class="small muted">${n0(x.views_total)} view da ${x.seconds} s · prima di approvare apri il sito e controlla che sia sicuro.</p>${pay}
+    <label class="row small" style="gap:8px;margin-top:10px"><input type="checkbox" id="apFrame" checked> Anteprima navigabile del sito nell'annuncio (togli la spunta se il sito non si apre dentro una cornice)</label>
+    <button class="btn mint" id="apGo" style="width:100%;margin-top:12px">Approva e metti in rotazione</button>`);
+  $('apGo').onclick=()=>act(async()=>{ await api('POST','/api/admin/adv/'+x.id+'/approve',{frame:$('apFrame').checked,confirm:$('apConf')?$('apConf').checked:false,tx:$('apTx')?$('apTx').value:''}); closeSheet(); toast('Campagna approvata'); await renderAdv(); });
+}
+function advReject(x){
+  const refund=x.pay_method==='SOL'?`<p class="small"><span class="tag t-sun">Rimborso</span> ${x.payment?`Il pagamento è arrivato da <b>${esc(x.payment.sender)}</b>: rimborsa a mano ${esc(x.sol)} SOL a quell'indirizzo, al netto della commissione di rete.`:'Se l\'inserzionista ha già pagato, rimborsalo a mano all\'indirizzo da cui ha inviato i SOL.'}</p>`:'<p class="small muted">Pagamento in token: non è stato scalato nulla.</p>';
+  openSheet(`<h3>Rifiuta la campagna #${x.id}</h3><p><b>${esc(x.title)}</b> · ${esc(hostOf(x.url))}</p>${refund}<textarea class="f" id="rjR" placeholder="Motivo (lo vede l'inserzionista)" style="width:100%;height:90px"></textarea><button class="btn red" id="rjGo" style="width:100%;margin-top:10px">Rifiuta</button>`);
+  $('rjGo').onclick=()=>act(async()=>{ await api('POST','/api/admin/adv/'+x.id+'/reject',{reason:$('rjR').value}); closeSheet(); toast('Richiesta rifiutata'); await renderAdv(); });
+}
+function show(t){ TAB=t; ['dash','wd','users','pio','pool','adv','set','log'].forEach(x=>$('t-'+x).hidden=x!==t); document.querySelectorAll('nav.tabs button').forEach(b=>{ if(b.dataset.t===t) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current'); }); act(()=>renderTab(t)); }
+async function renderTab(t){ return ({dash:renderDash,wd:renderWd,users:renderUsers,pio:renderPio,pool:renderPool,adv:renderAdv,set:renderSet,log:renderLog})[t](); }
 document.querySelectorAll('nav.tabs button[data-t]').forEach(b=>b.onclick=()=>show(b.dataset.t));
 async function renderAll(){ await act(async()=>{ await renderDash(); if(TAB!=='dash') await renderTab(TAB); }); }
 setInterval(()=>{ if(ME && document.visibilityState==='visible' && $('ov').classList.contains('show')===false) act(async()=>{ await renderDash(); if(TAB==='wd') await renderWd(); }); },45000);
