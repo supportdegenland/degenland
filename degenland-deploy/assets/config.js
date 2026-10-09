@@ -8,7 +8,7 @@
    launchAt: data e ora del lancio per il conto alla rovescia (ora italiana, +02:00).
    social: lascia '' per nascondere un canale; incolla il link per mostrarlo ovunque. */
 window.DEGENLAND = {
-  preview: !location.hostname.startsWith('test.'),
+  preview: false,
   previewKey: 'dl-7e82430e',
   launchAt: '2026-10-09T18:00:00+02:00',
   social: {
