@@ -14,6 +14,6 @@ window.DEGENLAND = {
   social: {
     x: 'https://x.com/DegenLandX',
     telegram: 'https://t.me/DegenLandchannel',
-    discord: 'https://discord.gg/edEeZKzge'
+    discord: 'https://discord.gg/xKz3D6V9j'
   }
 };
