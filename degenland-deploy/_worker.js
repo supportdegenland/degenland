@@ -96,8 +96,11 @@ const validEmail = e => /^[^\s@]{1,64}@[^\s@]{1,190}\.[^\s@]{2,}$/.test(e) && e.
    Convenzioni: importi SOL in lamport (interi), token in millesimi (1 token = 1000),
    tempi in millisecondi UTC. Le operazioni multiple passano SEMPRE da db.batch()
    (atomico): i vincoli CHECK/UNIQUE fanno fallire e annullare l'intero batch. */
-const SCHEMA_VERSION = 5;
-const MIGRATIONS = { 5: ["UPDATE adv_campaigns SET frame=1 WHERE kind='house'"],   // v5: anteprima navigabile per gli annunci della casa
+const SCHEMA_VERSION = 6;
+const MIGRATIONS = { 6: [   // v6: in rotazione solo i tool ToolsEdge già online; quelli "coming soon" in pausa (riattivabili dalla console)
+    "UPDATE adv_campaigns SET status='in_pausa' WHERE kind='house' AND id IN (6,7,8,9,10)",
+    "INSERT INTO adv_campaigns(kind,title,descr,url,seconds,status,frame,created_at) SELECT 'house','Edge Rugcheck','Check a Solana memecoin before you buy','https://toolsedge.cloud/crypto/edge-rugcheck',5,'attiva',1,CAST(strftime('%s','now') AS INTEGER)*1000 WHERE NOT EXISTS(SELECT 1 FROM adv_campaigns WHERE kind='house' AND url='https://toolsedge.cloud/crypto/edge-rugcheck')"],
+  5: ["UPDATE adv_campaigns SET frame=1 WHERE kind='house'"],   // v5: anteprima navigabile per gli annunci della casa
   4: [   // v4: Advertise Center (campagne a rotazione negli annunci del gioco)
   'ALTER TABLE ad_sessions ADD COLUMN campaign_id INTEGER',
   'ALTER TABLE ad_sessions ADD COLUMN min_seconds INTEGER',
@@ -116,11 +119,12 @@ const MIGRATIONS = { 5: ["UPDATE adv_campaigns SET frame=1 WHERE kind='house'"],
 `INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,frame,created_at) VALUES(3,'house','Edge Staking','Compare staking yields and APY before you stake','https://toolsedge.cloud/crypto/edge-staking',5,'attiva',1,CAST(strftime('%s','now') AS INTEGER)*1000)`,
 `INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,frame,created_at) VALUES(4,'house','Edge Wagering','Casino bonus wagering calculator','https://toolsedge.cloud/igaming/edge-wagering',5,'attiva',1,CAST(strftime('%s','now') AS INTEGER)*1000)`,
 `INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,frame,created_at) VALUES(5,'house','Edge Rakeback','Casino rakeback calculator and comparison','https://toolsedge.cloud/igaming/edge-rakeback',5,'attiva',1,CAST(strftime('%s','now') AS INTEGER)*1000)`,
-`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,frame,created_at) VALUES(6,'house','Edge DCA','Simulate a dollar-cost averaging strategy','https://toolsedge.cloud/crypto/edge-dca',5,'attiva',1,CAST(strftime('%s','now') AS INTEGER)*1000)`,
-`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,frame,created_at) VALUES(7,'house','Edge Liquidation','Futures margin and liquidation price calculator','https://toolsedge.cloud/crypto/edge-liquidation',5,'attiva',1,CAST(strftime('%s','now') AS INTEGER)*1000)`,
-`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,frame,created_at) VALUES(8,'house','Edge CEX Arbitrage','Scan price gaps between exchanges','https://toolsedge.cloud/crypto/edge-cex-arbitrage',5,'attiva',1,CAST(strftime('%s','now') AS INTEGER)*1000)`,
-`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,frame,created_at) VALUES(9,'house','Edge DEX Arbitrage','Scan price gaps between liquidity pools','https://toolsedge.cloud/crypto/edge-dex-arbitrage',5,'attiva',1,CAST(strftime('%s','now') AS INTEGER)*1000)`,
-`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,frame,created_at) VALUES(10,'house','Edge Surebet','Find sportsbook arbitrage opportunities','https://toolsedge.cloud/sports/edge-surebet',5,'attiva',1,CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,frame,created_at) VALUES(6,'house','Edge DCA','Simulate a dollar-cost averaging strategy','https://toolsedge.cloud/crypto/edge-dca',5,'in_pausa',1,CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,frame,created_at) VALUES(7,'house','Edge Liquidation','Futures margin and liquidation price calculator','https://toolsedge.cloud/crypto/edge-liquidation',5,'in_pausa',1,CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,frame,created_at) VALUES(8,'house','Edge CEX Arbitrage','Scan price gaps between exchanges','https://toolsedge.cloud/crypto/edge-cex-arbitrage',5,'in_pausa',1,CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,frame,created_at) VALUES(9,'house','Edge DEX Arbitrage','Scan price gaps between liquidity pools','https://toolsedge.cloud/crypto/edge-dex-arbitrage',5,'in_pausa',1,CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,frame,created_at) VALUES(10,'house','Edge Surebet','Find sportsbook arbitrage opportunities','https://toolsedge.cloud/sports/edge-surebet',5,'in_pausa',1,CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT INTO adv_campaigns(kind,title,descr,url,seconds,status,frame,created_at) SELECT 'house','Edge Rugcheck','Check a Solana memecoin before you buy','https://toolsedge.cloud/crypto/edge-rugcheck',5,'attiva',1,CAST(strftime('%s','now') AS INTEGER)*1000 WHERE NOT EXISTS(SELECT 1 FROM adv_campaigns WHERE kind='house' AND url='https://toolsedge.cloud/crypto/edge-rugcheck')`,
 ], 3: [
   'ALTER TABLE users ADD COLUMN wd_hold INTEGER NOT NULL DEFAULT 0',
   'ALTER TABLE miners ADD COLUMN special TEXT',
@@ -261,11 +265,12 @@ const SCHEMA = [
 `INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,frame,created_at) VALUES(3,'house','Edge Staking','Compare staking yields and APY before you stake','https://toolsedge.cloud/crypto/edge-staking',5,'attiva',1,CAST(strftime('%s','now') AS INTEGER)*1000)`,
 `INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,frame,created_at) VALUES(4,'house','Edge Wagering','Casino bonus wagering calculator','https://toolsedge.cloud/igaming/edge-wagering',5,'attiva',1,CAST(strftime('%s','now') AS INTEGER)*1000)`,
 `INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,frame,created_at) VALUES(5,'house','Edge Rakeback','Casino rakeback calculator and comparison','https://toolsedge.cloud/igaming/edge-rakeback',5,'attiva',1,CAST(strftime('%s','now') AS INTEGER)*1000)`,
-`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,frame,created_at) VALUES(6,'house','Edge DCA','Simulate a dollar-cost averaging strategy','https://toolsedge.cloud/crypto/edge-dca',5,'attiva',1,CAST(strftime('%s','now') AS INTEGER)*1000)`,
-`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,frame,created_at) VALUES(7,'house','Edge Liquidation','Futures margin and liquidation price calculator','https://toolsedge.cloud/crypto/edge-liquidation',5,'attiva',1,CAST(strftime('%s','now') AS INTEGER)*1000)`,
-`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,frame,created_at) VALUES(8,'house','Edge CEX Arbitrage','Scan price gaps between exchanges','https://toolsedge.cloud/crypto/edge-cex-arbitrage',5,'attiva',1,CAST(strftime('%s','now') AS INTEGER)*1000)`,
-`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,frame,created_at) VALUES(9,'house','Edge DEX Arbitrage','Scan price gaps between liquidity pools','https://toolsedge.cloud/crypto/edge-dex-arbitrage',5,'attiva',1,CAST(strftime('%s','now') AS INTEGER)*1000)`,
-`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,frame,created_at) VALUES(10,'house','Edge Surebet','Find sportsbook arbitrage opportunities','https://toolsedge.cloud/sports/edge-surebet',5,'attiva',1,CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,frame,created_at) VALUES(6,'house','Edge DCA','Simulate a dollar-cost averaging strategy','https://toolsedge.cloud/crypto/edge-dca',5,'in_pausa',1,CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,frame,created_at) VALUES(7,'house','Edge Liquidation','Futures margin and liquidation price calculator','https://toolsedge.cloud/crypto/edge-liquidation',5,'in_pausa',1,CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,frame,created_at) VALUES(8,'house','Edge CEX Arbitrage','Scan price gaps between exchanges','https://toolsedge.cloud/crypto/edge-cex-arbitrage',5,'in_pausa',1,CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,frame,created_at) VALUES(9,'house','Edge DEX Arbitrage','Scan price gaps between liquidity pools','https://toolsedge.cloud/crypto/edge-dex-arbitrage',5,'in_pausa',1,CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT OR IGNORE INTO adv_campaigns(id,kind,title,descr,url,seconds,status,frame,created_at) VALUES(10,'house','Edge Surebet','Find sportsbook arbitrage opportunities','https://toolsedge.cloud/sports/edge-surebet',5,'in_pausa',1,CAST(strftime('%s','now') AS INTEGER)*1000)`,
+`INSERT INTO adv_campaigns(kind,title,descr,url,seconds,status,frame,created_at) SELECT 'house','Edge Rugcheck','Check a Solana memecoin before you buy','https://toolsedge.cloud/crypto/edge-rugcheck',5,'attiva',1,CAST(strftime('%s','now') AS INTEGER)*1000 WHERE NOT EXISTS(SELECT 1 FROM adv_campaigns WHERE kind='house' AND url='https://toolsedge.cloud/crypto/edge-rugcheck')`,
 `CREATE TABLE IF NOT EXISTS accounts(
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   owner_id INTEGER REFERENCES users(id), system_code TEXT,
@@ -1134,10 +1139,20 @@ async function snapshotTick(env) {
   const farms = (await dbOne(db, 'SELECT COUNT(*) c FROM farms WHERE on_until>?', NOW())).c;
   await dbRun(db, 'INSERT OR IGNORE INTO treasury_snapshots(day,pool_lamports,pending_lamports,queued_lamports,prod30,coverage,scrap_pct,active_farms,blocks) VALUES(?,?,?,?,?,?,?,?,?)', day, h.pool_lamports, h.users_lamports, h.pending_lamports, h.prod30, h.coverage, h.scrap_pct, farms, pool.blocks);
 }
+/* Blocchi giornalieri delle farm tenute accese da un'estensione: senza questo verrebbero contati
+   solo quando il proprietario riapre il gioco. Qui li contiamo appena maturano (24 h dall'ultimo). */
+async function blocksTick(env) {
+  const t = NOW();
+  const due = await dbAll(env.DB, 'SELECT user_id FROM farms WHERE last_block_at>0 AND last_block_at+?<=? AND last_block_at+?<on_until ORDER BY last_block_at ASC LIMIT 25', DAY, t, DAY);
+  for (const r of due) {
+    const c = { env, db: env.DB, ip: 'tick', params: {} };
+    try { await settle(c, r.user_id); } catch (e) { console.error('blocksTick', r.user_id, e && e.message); }
+  }
+}
 async function tick(ctx) {
   const t = NOW(); if (_cache.lastTick && t - _cache.lastTick < 30000) return; _cache.lastTick = t;
   const env = ctx.env;
-  const jobs = [fxTick(env), processClosing(ctx), snapshotTick(env), flushNotifications(env, 5), checkDeposits(env), dbRun(env.DB, 'DELETE FROM guards WHERE created_at<?', t - 2 * DAY), dbRun(env.DB, 'DELETE FROM rate_limits WHERE window_start<?', t - 2 * DAY)];
+  const jobs = [fxTick(env), blocksTick(env), processClosing(ctx), snapshotTick(env), flushNotifications(env, 5), checkDeposits(env), dbRun(env.DB, 'DELETE FROM guards WHERE created_at<?', t - 2 * DAY), dbRun(env.DB, 'DELETE FROM rate_limits WHERE window_start<?', t - 2 * DAY)];
   for (const j of jobs) { try { await j; } catch (e) { console.error('tick job', e && e.message); } }
 }
 
@@ -1791,6 +1806,13 @@ async function adminAssignDeposit(ctx, id, body) {
   await dbRun(ctx.db, 'INSERT INTO audit_log(admin_id,action,target_table,target_id,after,ip,created_at) VALUES(?,?,?,?,?,?,?)', ctx.admin.id, 'assegna_deposito', 'deposits', id, JSON.stringify({ user: u.id }), ctx.ip, NOW());
   return { ok: true };
 }
+async function adminDiscardDeposit(ctx, id, body) { // versamento da non accreditare (es. prove, importi estranei al gioco)
+  const note = cleanText(body.note, 200); if (note.length < 3) throw bad('reason_required', 'Indica il motivo');
+  const d = await dbOne(ctx.db, "SELECT * FROM deposits WHERE id=? AND status='non_abbinato'", id); if (!d) throw notfound('deposit_not_found');
+  await runBatch(ctx.db, [st(ctx.db, "UPDATE deposits SET status='scartato', note=? WHERE id=? AND status='non_abbinato'", note, id),
+    auditStmt(ctx.db, ctx.admin.id, 'scarta_deposito', 'deposits', id, { status: 'non_abbinato' }, { status: 'scartato', note }, ctx.ip)]);
+  return { ok: true };
+}
 async function adminSetFx(ctx, body) {
   const v = +body.sol_usd; if (!(v > 1 && v < 10000)) throw bad('invalid_rate');
   await ctx.db.batch([st(ctx.db, "INSERT INTO fx_rates(sol_usd,source,reason,valid_from) VALUES(?,?,?,?)", v, 'admin', 'manuale', NOW()), auditStmt(ctx.db, ctx.admin.id, 'cambio_manuale', 'fx_rates', null, null, { v }, ctx.ip)]); invalidateCaches(); return { ok: true };
@@ -1888,6 +1910,7 @@ const ROUTES = [
   P('POST', '/api/admin/treasury', (c, b) => adminTreasury(c, b), 'admin', ADMIN_ROLES.money),
   P('GET', '/api/admin/deposits', c => adminDeposits(c, c.url), 'admin'),
   P('POST', '/api/admin/deposits/:id/assign', (c, b) => adminAssignDeposit(c, +c.params.id, b), 'admin', ADMIN_ROLES.money),
+  P('POST', '/api/admin/deposits/:id/discard', (c, b) => adminDiscardDeposit(c, +c.params.id, b), 'admin', ADMIN_ROLES.money),
   P('POST', '/api/admin/fx', (c, b) => adminSetFx(c, b), 'admin', ADMIN_ROLES.money),
   P('POST', '/api/admin/pool/force-close', c => adminForceClose(c), 'admin', ADMIN_ROLES.money),
   P('POST', '/api/admin/admins', async (c, b) => { const email = normEmail(b.email); if (!validEmail(email)) throw bad('invalid_email'); if (!['superadmin', 'operatore', 'supporto', 'sola_lettura'].includes(b.role)) throw bad('invalid_role'); return createAdmin(c.db, email, b.name || email, b.role, c.ip, c.admin.id); }, 'admin', ADMIN_ROLES.money),
@@ -1912,7 +1935,7 @@ async function handleApi(request, env, evt) {
     const out = await route.fn(ctx, body);
     if (ctx.setCookie) headers['Set-Cookie'] = ctx.setCookie;
     if (ctx.cacheControl) headers['Cache-Control'] = ctx.cacheControl;
-    if (route.auth === 'user' && evt && evt.waitUntil) evt.waitUntil(tick(ctx));
+    if (evt && evt.waitUntil) evt.waitUntil(tick(ctx));
     return json({ ok: true, ...(out || {}) }, 200, headers);
   } catch (e) {
     if (e instanceof HttpError) return json({ ok: false, error: e.code, message: e.message }, e.status, ctx.setCookie ? { 'Set-Cookie': ctx.setCookie } : {});
