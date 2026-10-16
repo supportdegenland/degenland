@@ -96,8 +96,12 @@ const validEmail = e => /^[^\s@]{1,64}@[^\s@]{1,190}\.[^\s@]{2,}$/.test(e) && e.
    Convenzioni: importi SOL in lamport (interi), token in millesimi (1 token = 1000),
    tempi in millisecondi UTC. Le operazioni multiple passano SEMPRE da db.batch()
    (atomico): i vincoli CHECK/UNIQUE fanno fallire e annullare l'intero batch. */
-const SCHEMA_VERSION = 6;
-const MIGRATIONS = { 6: [   // v6: in rotazione solo i tool ToolsEdge già online; quelli "coming soon" in pausa (riattivabili dalla console)
+const SCHEMA_VERSION = 7;
+const MIGRATIONS = { 7: [   // v7: indici per i lavori periodici (meno letture sul database)
+    "CREATE INDEX IF NOT EXISTS guards_time ON guards(created_at)",
+    "CREATE INDEX IF NOT EXISTS rate_limits_time ON rate_limits(window_start)",
+    "CREATE INDEX IF NOT EXISTS farms_block ON farms(last_block_at)"],
+  6: [   // v6: in rotazione solo i tool ToolsEdge già online; quelli "coming soon" in pausa (riattivabili dalla console)
     "UPDATE adv_campaigns SET status='in_pausa' WHERE kind='house' AND id IN (6,7,8,9,10)",
     "INSERT INTO adv_campaigns(kind,title,descr,url,seconds,status,frame,created_at) SELECT 'house','Edge Rugcheck','Check a Solana memecoin before you buy','https://toolsedge.cloud/crypto/edge-rugcheck',5,'attiva',1,CAST(strftime('%s','now') AS INTEGER)*1000 WHERE NOT EXISTS(SELECT 1 FROM adv_campaigns WHERE kind='house' AND url='https://toolsedge.cloud/crypto/edge-rugcheck')"],
   5: ["UPDATE adv_campaigns SET frame=1 WHERE kind='house'"],   // v5: anteprima navigabile per gli annunci della casa
@@ -138,6 +142,8 @@ const SCHEMA = [
 `CREATE TABLE IF NOT EXISTS meta(key TEXT PRIMARY KEY, value TEXT)`,
 `CREATE TABLE IF NOT EXISTS guards(k TEXT PRIMARY KEY, created_at INTEGER NOT NULL)`,
 `CREATE TABLE IF NOT EXISTS rate_limits(k TEXT PRIMARY KEY, window_start INTEGER NOT NULL, count INTEGER NOT NULL)`,
+`CREATE INDEX IF NOT EXISTS guards_time ON guards(created_at)`,
+`CREATE INDEX IF NOT EXISTS rate_limits_time ON rate_limits(window_start)`,
 `CREATE TABLE IF NOT EXISTS users(
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   nickname TEXT NOT NULL UNIQUE COLLATE NOCASE,
@@ -243,6 +249,7 @@ const SCHEMA = [
 `CREATE TABLE IF NOT EXISTS farm_starts(
   id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL, pool_id INTEGER NOT NULL,
   source TEXT NOT NULL, pool_block_no INTEGER, created_at INTEGER NOT NULL)`,
+`CREATE INDEX IF NOT EXISTS farms_block ON farms(last_block_at)`,
 `CREATE INDEX IF NOT EXISTS farm_starts_user ON farm_starts(user_id, created_at)`,
 `CREATE TABLE IF NOT EXISTS extensions(
   id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL, days INTEGER NOT NULL,
@@ -1150,10 +1157,14 @@ async function blocksTick(env) {
   }
 }
 async function tick(ctx) {
-  const t = NOW(); if (_cache.lastTick && t - _cache.lastTick < 30000) return; _cache.lastTick = t;
-  const env = ctx.env;
-  const jobs = [fxTick(env), blocksTick(env), processClosing(ctx), snapshotTick(env), flushNotifications(env, 5), checkDeposits(env), dbRun(env.DB, 'DELETE FROM guards WHERE created_at<?', t - 2 * DAY), dbRun(env.DB, 'DELETE FROM rate_limits WHERE window_start<?', t - 2 * DAY)];
-  for (const j of jobs) { try { await j; } catch (e) { console.error('tick job', e && e.message); } }
+  const t = NOW(); if (_cache.lastTick && t - _cache.lastTick < 60000) return; _cache.lastTick = t;
+  const env = ctx.env, db = env.DB;
+  // un solo giro al minuto per tutto il sito (non per ogni istanza): poche letture sul database
+  const gate = async (key, every) => { const r = await dbRun(db, "INSERT INTO meta(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value WHERE CAST(meta.value AS INTEGER)<?", key, String(t), t - every); return !!(r && r.meta && r.meta.changes); };
+  try { if (!(await gate('tick_at', 60000))) return; } catch (e) { return; }
+  const jobs = [() => fxTick(env), () => blocksTick(env), () => processClosing(ctx), () => snapshotTick(env), () => flushNotifications(env, 5), () => checkDeposits(env)];
+  for (const j of jobs) { try { await j(); } catch (e) { console.error('tick job', e && e.message); } }
+  try { if (await gate('cleanup_at', HOUR)) { await dbRun(db, 'DELETE FROM guards WHERE created_at<?', t - 2 * DAY); await dbRun(db, 'DELETE FROM rate_limits WHERE window_start<?', t - 2 * DAY); } } catch (e) { console.error('cleanup', e && e.message); }
 }
 
 
@@ -1935,7 +1946,7 @@ async function handleApi(request, env, evt) {
     const out = await route.fn(ctx, body);
     if (ctx.setCookie) headers['Set-Cookie'] = ctx.setCookie;
     if (ctx.cacheControl) headers['Cache-Control'] = ctx.cacheControl;
-    if (evt && evt.waitUntil) evt.waitUntil(tick(ctx));
+    if ((route.auth === 'user' || route.auth === 'admin') && evt && evt.waitUntil) evt.waitUntil(tick(ctx));
     return json({ ok: true, ...(out || {}) }, 200, headers);
   } catch (e) {
     if (e instanceof HttpError) return json({ ok: false, error: e.code, message: e.message }, e.status, ctx.setCookie ? { 'Set-Cookie': ctx.setCookie } : {});
